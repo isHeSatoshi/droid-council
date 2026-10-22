@@ -1,0 +1,193 @@
+# droid-council
+
+A council of droids that decompose a task, work in parallel, and merge their findings into one result. Built on the [Droid TypeScript SDK](https://docs.factory.com/sdk/typescript).
+
+```bash
+npm install
+echo "FACTORY_API_KEY=fk-..." > .env     # https://app.factory.ai/settings/api-keys
+npm run council -- "Build a REST API for a todo app, with tests"
+```
+
+The npm scripts load `.env` with `--env-file-if-exists`, so the key only has to exist
+there. To run the engine directly, `npx tsx --env-file-if-exists=.env council.ts "<task>"`.
+
+One TypeScript process owns the whole council. Every droid is a single SDK `run()` call.
+
+```
+  EXPAND          EXECUTE              REDUCE
+  breadth-first   fixed worker pool    bottom-up, level by level
+
+      root                                merge
+     /  |  \                              /  |  \
+   leaf leaf leaf   ← run in parallel →  r1  r2  r3
+    |    |    |                            \  |  /
+   leaf leaf leaf   ← run in parallel →      root
+```
+
+## Two films
+
+Both are in this repo, both are rendered from HTML with [HyperFrames](https://hyperframes.heygen.com), and both are built from the real event logs in `runs/` rather than from illustrations.
+
+| Cut | What it is |
+|---|---|
+| [`loom/renders/droid-council-loom.mp4`](loom/renders/droid-council-loom.mp4) | **60 s.** A Loom-style screen recording of the run. Clippy presents — a wire paperclip, not a webcam — with a speech card that changes fourteen times, a `REC` pill and a running clock. The 1997 desktop is the conceit: a terminal recording of a terminal job. |
+| [`video/renders/droid-council-sheet.mp4`](video/renders/droid-council-sheet.mp4) | **48.6 s.** The drafting-sheet cut. No mascot, no jokes: the three runs drawn as measured tracks on one axis, then the same thirteen tasks compared as work done rather than wall clock. |
+
+The thirteen worker bars in the Loom cut are the thirteen real per-worker durations read out of `runs/team-fast/events.jsonl`, and their one-frame stagger is the real spread — all thirteen workers started within about 100 ms of each other.
+
+To rebuild either from source:
+
+```bash
+cd loom        # or cd video
+npm install
+npm run render
+```
+
+Narration is Sarvam `bulbul:v4-flash` — fourteen lines, 55.8 s of speech, written by `video/voice.py`. The music is hand-composed in numpy: a chiptune for the desktop cut (`video/mkbgm.py`) and a slow pad bed for the sheet cut (`video/mkbgm2.py`). No model, no account, deterministic.
+
+## Measured results
+
+Six-module Python package with a pytest suite per module, same task, same model (`glm-5.3-flash`, high reasoning). Test counts independently re-verified by running `pytest` myself afterwards.
+
+![single droid vs council](docs/comparison.png)
+
+| | Single droid | Council, concurrency 6 | Council, concurrency 16 |
+|---|---|---|---|
+| Wall clock | **261s** | 631s | 391s |
+| Droids | 1 | 44 | 46 |
+| Credits | **10,311** | 96,094 | 82,550 |
+| Tests passing | 57 | 51 | **60** |
+
+The chart is the whole story. Purple bars are planners, green are workers, amber are judges. At concurrency 6 the workers form a **staircase** — only 6 run at a time, so the pool is the bottleneck. At concurrency 16 all 13 workers start within 200ms of each other: a solid parallel block, and the wall clock drops 38% with no other change.
+
+**Read this honestly: for a task this size, one droid wins.** The council produced slightly more tests at high concurrency, but it was slower and roughly 8x more expensive.
+
+The reason is fixed per-droid cost. Every droid pays a session init (30-60s here) before doing any work, so:
+
+```
+wall clock  ≈  (droids / concurrency) × init  +  actual work
+```
+
+With 46 droids that startup term dominates completely. That is the real scaling law of this architecture, and it has two consequences:
+
+- **Concurrency is the lever.** It is the first knob to turn, not the last.
+- **A council pays off when work exceeds one context window** — many large independent workstreams, a repo-wide audit, 500 files to classify. Splitting a task one droid can already hold just adds startup cost.
+
+`--plan-only` exists so you can see the shape and the cost before spending anything.
+
+## Scaling to any size
+
+The council size is set by three independent knobs, and nothing in the code assumes a particular number:
+
+| Knob | Meaning |
+|---|---|
+| `--leaves N` | Max leaf tasks. The real size control. |
+| `--concurrency N` | Droids running at once. Throughput. |
+| `--agents N` | Hard ceiling on total droid runs. A budget, not a target. |
+| `--depth N`, `--fanout N` | How eagerly the tree splits. |
+
+Because droids never spawn droids — this process owns every node — one counter bounds the entire council at any size. The same code path runs 2 droids or 100,000; only the numbers change.
+
+Practical ceilings are your API rate limit and your wallet, not the architecture. At `--concurrency 16` a 1,000-leaf council is ~60 waves; at `--concurrency 128` it is ~8. Cost is `droids × per-droid cost`, which is why `--agents` is enforced as a hard stop rather than a suggestion.
+
+## The three invariants
+
+Everything else is detail. These are what make it safe to scale.
+
+**1. Droids never spawn droids.** The orchestrator spawns. If droids could spawn droids, nothing would bound the tree and you would get a fork bomb with a bill. One process owning every node is what makes a single global counter sufficient.
+
+**2. The semaphore wraps the SDK call, never the recursion.** A parent that held a concurrency slot while awaiting its children would deadlock at depth ≥ 2: every slot held by a waiting parent, none left for the child it waits on. `slot()` wraps only `run()`.
+
+**3. Decomposition is separated from execution.** Recursive spawning holds a live parent process per branch, which is what caps that design at shallow depth. Here, expand writes a plan, execute drains a flat leaf queue with a fixed pool, and reduce walks back up. No parent blocks a child.
+
+## How the droids communicate
+
+Two directions, deliberately asymmetric:
+
+- **Up:** every node returns a report to its parent, which merges. Judges are told to reconcile contradictions by naming a winner, never by averaging.
+- **Sideways:** siblings share `board.md` — append-only, read-before-write. This is how droids working on different files still benefit from each other's discoveries.
+
+In the run above this worked for real: one droid hit an `UnboundLocalError` in `strip_html.py`, recorded it on the board, another droid fixed it, and the judge's final report named that fix explicitly.
+
+No message bus, no vector store, no shared memory service. A file and a return value cover what actually needs to move.
+
+## Roles
+
+| Role | Job |
+|---|---|
+| `planner` | Splits one task into independent subtasks. Read-only — planners cannot touch files. |
+| `worker` | Does one leaf task. Writes real artifacts. Owns only its own files. |
+| `judge` | Merges reports into one authoritative result. |
+
+## Artifacts
+
+Every run writes to `--cwd` (`runs/<timestamp>/` by default):
+
+| File | Contents |
+|---|---|
+| `plan.json` | The full node tree: parents, children, depths, tasks |
+| `events.jsonl` | One JSON line per lifecycle event, for the UI |
+| `board.md` | The shared blackboard |
+| `answer.md` | The final merged result |
+| `report.json` | Droids used, tokens, credits, duration, failures |
+
+## Options
+
+```
+--mode MODE      single (1 droid baseline) | team   (team)
+--leaves N       max leaf tasks to execute          (48)
+--depth N        max planning depth                 (3)
+--fanout N       max subtasks per split             (6)
+--concurrency N  droids running at once             (8)
+--agents N       total droid budget, hard stop      (200)
+--panel N        attempts per leaf, judged          (1)
+--models a,b,c   model per spawn, round-robin       (auto)
+--cwd PATH       working dir + artifact dir         (runs/<timestamp>)
+--label NAME     name this run for the UI           (run)
+--auto LEVEL     off|low|medium|high                (medium)
+--reason LEVEL   off|low|medium|high|xhigh|max      (high)
+--plan-only      expand and print the plan, spawn no workers
+```
+
+**`--plan-only`** is the cheap way to size a task. It runs only the planners and tells you the node count, leaf count, and estimated droid spend before you commit.
+
+**`--panel N`** runs N *different* models on the same leaf and judges their outputs. Independent attempts that agree are worth more than one attempt at higher reasoning effort. Use it where being wrong is expensive; leave it at 1 for mechanical work.
+
+**`--mode single`** is the honest baseline. Always worth running for a new task shape.
+
+## UI
+
+```bash
+npm run ui        # http://localhost:8787
+```
+
+Replays any run from its `events.jsonl`: the tree as it expands, droids starting and finishing, the blackboard filling up, and the comparison between runs.
+
+To share a run without a server, export a single self-contained file:
+
+```bash
+npx tsx export.ts                 # every run under runs/ → council-report.html
+npx tsx export.ts team team-fast  # only these runs
+```
+
+`council-report.html` embeds the events, blackboards, and answers, so it opens from disk, over email, or on a static host with no server and no network. Screen-record that page for a demo video of the council working.
+
+## Requirements
+
+Node 18+, and a **`FACTORY_API_KEY`**. The SDK requires the key explicitly; it does *not* reuse the droid CLI's stored login, so a working `droid exec` alone is not enough.
+
+A matching `@factory/cli` is installed as a dev dependency and used automatically, because the SDK and CLI must agree on a JSON-RPC protocol version. A stale CLI rejects session init with `-32600`, and the only symptom is a 60s timeout on *every* droid — indistinguishable from slow work. `council.ts` checks the version at startup and refuses to run rather than burn an hour pretending to be busy.
+
+## Design notes
+
+**Atomicity is decided by code, not the model.** The planner returns a list of subtasks and nothing else; fewer than two usable subtasks means a leaf. An earlier version asked the model for an `atomic` boolean and it would occasionally answer `atomic: true` while listing six deliverables, silently collapsing the whole council to a single droid. Removing that field from the model's control removed the failure mode.
+
+**Planning failure degrades, never aborts.** A planner that fails, times out, or returns nothing schema-conforming becomes a leaf and executes directly. With thousands of nodes, partial results are the normal case.
+
+**Root-level retry.** If the root planner declines to split, it gets one retry with an explicit nudge — a wrong decision there collapses the entire council. Deeper down, "this is one file" is usually correct, so no retry is spent.
+
+**What is not here.** No checkpoint/resume of a half-finished council, no retry-with-backoff on rate limits, no cross-machine distribution. Those are the right next additions at real scale, and none of them change the three invariants.
+
+## License
+
+MIT

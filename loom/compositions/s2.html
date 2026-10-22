@@ -1,0 +1,143 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #s2-win {
+      left: 190px;
+      top: 130px;
+      width: 1590px;
+      height: 720px;
+    }
+    #s2-body {
+      position: absolute;
+      inset: 32px 4px 4px 4px;
+      display: flex;
+    }
+    #s2-text {
+      width: 960px;
+      padding: 22px 26px;
+      font-family: var(--font-mono);
+      font-size: 21px;
+      line-height: 1.78;
+      color: #101010;
+      white-space: pre-wrap;
+    }
+    .hl {
+      padding: 0 2px;
+      background-color: rgba(255, 233, 94, 0);
+    }
+    #s2-side {
+      flex: 1;
+      padding: 20px 22px;
+      border-left: 2px solid #808080;
+      background: var(--face);
+    }
+    #s2-side h4 {
+      font-size: 19px;
+      letter-spacing: 0.05em;
+      margin-bottom: 14px;
+    }
+    .mod {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 12px;
+      margin-bottom: 8px;
+      background: #fff;
+      border-top: 2px solid var(--shadow);
+      border-left: 2px solid var(--shadow);
+      border-right: 2px solid var(--hilite);
+      border-bottom: 2px solid var(--hilite);
+      font-family: var(--font-mono);
+      font-size: 20px;
+      opacity: 0;
+    }
+    .mod .bx {
+      width: 19px;
+      height: 19px;
+      background: #fff;
+      border-top: 2px solid var(--shadow);
+      border-left: 2px solid var(--shadow);
+      border-right: 2px solid var(--hilite);
+      border-bottom: 2px solid var(--hilite);
+      font-style: normal;
+      font-size: 17px;
+      line-height: 15px;
+      font-weight: 700;
+      color: #0a7a2f;
+      text-align: center;
+    }
+    .mod .bx i {
+      font-style: normal;
+      opacity: 0;
+    }
+    #s2-count {
+      margin-top: 16px;
+      font-family: var(--font-mono);
+      font-size: 21px;
+      color: #303030;
+      opacity: 0;
+    }
+  </style>
+
+  <div id="root" data-composition-id="s2" data-width="1920" data-height="1080">
+    <div id="s2-win" class="win bevel">
+      <div class="tbar">
+        <span>task.md - Notepad</span>
+        <div class="btns"><i>_</i><i>□</i><i>×</i></div>
+      </div>
+      <div id="s2-body">
+        <div id="s2-text">Build a Python package named textstat with exactly six
+<span class="hl">independent modules</span>, each with its own pytest test file:
+
+  <span class="hl">slugify.py</span>       title to URL slug
+  <span class="hl">wordcount.py</span>     word, character and sentence counts
+  <span class="hl">truncate.py</span>      truncate at a word boundary
+  <span class="hl">normalize_ws.py</span>  collapse repeated whitespace
+  <span class="hl">titlecase.py</span>     smart title casing
+  <span class="hl">strip_html.py</span>    remove HTML tags
+
+Add an __init__.py. <span class="hl">No cross-imports between modules.</span>
+Then run py -m pytest -q and report the exact pass and fail counts.</div>
+        <div id="s2-side">
+          <h4>DELIVERED</h4>
+          <div class="mod"><span class="bx"><i>✓</i></span>textstat/slugify.py</div>
+          <div class="mod"><span class="bx"><i>✓</i></span>textstat/wordcount.py</div>
+          <div class="mod"><span class="bx"><i>✓</i></span>textstat/truncate.py</div>
+          <div class="mod"><span class="bx"><i>✓</i></span>textstat/normalize_ws.py</div>
+          <div class="mod"><span class="bx"><i>✓</i></span>textstat/titlecase.py</div>
+          <div class="mod"><span class="bx"><i>✓</i></span>textstat/strip_html.py</div>
+          <div id="s2-count">+ 6 pytest files · 60 tests passing</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+
+    // blur swap in: the outgoing prompt is already gone; this lands soft and sharpens
+    tl.fromTo(
+      "#s2-win",
+      { opacity: 0, filter: "blur(14px)", scale: 1.03 },
+      { opacity: 1, filter: "blur(0px)", scale: 1, duration: 0.34, ease: "power3.out" },
+      0,
+    );
+
+    tl.fromTo(
+      ".hl",
+      { backgroundColor: "rgba(255,233,94,0)" },
+      { backgroundColor: "#ffe95e", duration: 0.2, stagger: 0.16, ease: "power2.out" },
+      0.45,
+    );
+
+    tl.fromTo(".mod", { opacity: 0, x: 16 }, { opacity: 1, x: 0, duration: 0.26, ease: "power3.out", stagger: 0.12 }, 1.45);
+    tl.to(".mod .bx i", { opacity: 1, duration: 0.01, stagger: 0.12 }, 1.5);
+    tl.to("#s2-count", { opacity: 1, duration: 0.3 }, 2.45);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["s2"] = tl;
+  </script>
+</template>

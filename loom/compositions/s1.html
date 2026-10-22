@@ -1,0 +1,110 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #s1-win {
+      left: 140px;
+      top: 150px;
+      width: 1640px;
+      height: 735px;
+      transform-origin: 0% 100%;
+    }
+    #s1-body {
+      position: absolute;
+      inset: 32px 4px 4px 4px;
+      padding: 16px 20px;
+      overflow: hidden;
+    }
+    /* the prompt types as one element revealed left to right, so it is seek-safe */
+    #s1-line1 {
+      clip-path: inset(0 100% 0 0);
+    }
+    .out {
+      opacity: 0;
+    }
+    .out b {
+      color: #ffd75e;
+      font-weight: 400;
+    }
+    #s1-cursor {
+      display: inline-block;
+      width: 13px;
+      height: 24px;
+      background: #c8c8c8;
+      vertical-align: -4px;
+      margin-left: 3px;
+    }
+    /* a Win95 taskbar button, for the window that minimises away */
+    #s1-task {
+      position: absolute;
+      left: 420px;
+      bottom: 40px;
+      width: 380px;
+      height: 46px;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      font-size: 20px;
+      font-weight: 700;
+      opacity: 0;
+      transform-origin: 0% 100%;
+    }
+  </style>
+
+  <div id="root" data-composition-id="s1" data-width="1920" data-height="1080">
+    <div id="s1-win" class="win bevel">
+      <div class="tbar">
+        <span>MS-DOS Prompt</span>
+        <div class="btns"><i>_</i><i>□</i><i>×</i></div>
+      </div>
+      <div id="s1-body" class="bevel-in term">
+        <div>Microsoft(R) Windows 95</div>
+        <div class="d">   (C)Copyright Microsoft Corp 1981-1995.</div>
+        <div>&nbsp;</div>
+        <div id="s1-line1"><span class="p">D:\Project\droid council&gt;</span> <span class="w">dir /b</span></div>
+        <div class="out">analysis.py</div>
+        <div class="out">council.ts</div>
+        <div class="out">export.ts</div>
+        <div class="out">package.json</div>
+        <div class="out">README.md</div>
+        <div class="out"><b>runs</b></div>
+        <div class="out">serve.ts</div>
+        <div class="out">ui.html</div>
+        <div>&nbsp;</div>
+        <div id="s1-line2"><span class="p">D:\Project\droid council&gt;</span> <span id="s1-cursor"></span></div>
+      </div>
+    </div>
+    <div id="s1-task" class="bevel">MS-DOS Prompt</div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+
+    // the window opens the way 95 opened one: a title bar that grows into a window
+    tl.fromTo(
+      "#s1-win",
+      { scaleX: 0.14, scaleY: 0.04, opacity: 0 },
+      { scaleX: 1, scaleY: 1, opacity: 1, duration: 0.42, ease: "power3.out" },
+      0,
+    );
+
+    tl.fromTo("#s1-line1", { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 0.45, ease: "none" }, 0.55);
+    tl.to(".out", { opacity: 1, duration: 0.12, stagger: 0.11 }, 1.15);
+    tl.fromTo("#s1-line2", { opacity: 0 }, { opacity: 1, duration: 0.2 }, 2.35);
+
+    // the cursor is the live terminal's own signal, at its real 0.53 s rate
+    tl.to("#s1-cursor", { opacity: 0, duration: 0.53, repeat: 9, yoyo: true, ease: "steps(1)" }, 2.4);
+
+    // the window drops into the taskbar button, and the button appears as it lands
+    tl.to(
+      "#s1-win",
+      { scaleX: 0.2317, scaleY: 0.0613, x: 280, y: 140, opacity: 0, duration: 0.32, ease: "power3.in", transformOrigin: "0% 100%" },
+      7.58,
+    );
+    tl.fromTo("#s1-task", { opacity: 0, scaleX: 0.2 }, { opacity: 1, scaleX: 1, duration: 0.26, ease: "power3.out" }, 7.62);
+
+    window.__timelines["s1"] = tl;
+  </script>
+</template>

@@ -1,0 +1,476 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      font-family: var(--font-mono);
+      color: var(--color-ink);
+    }
+    .hdr {
+      position: absolute;
+      white-space: nowrap;
+    }
+    #r-title {
+      left: 64px;
+      top: 30px;
+      font-family: var(--font-display);
+      font-size: 34px;
+      letter-spacing: 0.04em;
+    }
+    #r-sub {
+      left: 64px;
+      top: 76px;
+      font-size: 19px;
+      color: var(--color-dim);
+    }
+    #r-clock {
+      right: 60px;
+      top: 30px;
+      text-align: right;
+      font-family: var(--font-display);
+      font-size: 34px;
+      letter-spacing: 0.04em;
+      font-variant-numeric: tabular-nums;
+    }
+    #r-scale {
+      right: 60px;
+      top: 76px;
+      text-align: right;
+      font-size: 19px;
+      color: var(--color-dim);
+    }
+    #r-rule-top {
+      position: absolute;
+      left: 64px;
+      top: 118px;
+      width: 1796px;
+      height: 3px;
+      background: var(--color-ink);
+      opacity: 0.75;
+      transform-origin: left center;
+    }
+    .refline {
+      position: absolute;
+      top: 130px;
+      width: 1px;
+      height: 800px;
+      background: var(--color-dim);
+      opacity: 0.22;
+      transform-origin: top center;
+    }
+    .tick {
+      position: absolute;
+      top: 950px;
+      width: 1px;
+      height: 12px;
+      background: var(--color-dim);
+      transform-origin: top center;
+    }
+    .ticklab {
+      position: absolute;
+      top: 972px;
+      font-size: 18px;
+      color: var(--color-dim);
+      transform: translateX(-50%);
+    }
+    #r-axis {
+      position: absolute;
+      left: 300px;
+      top: 949px;
+      width: 1560px;
+      height: 3px;
+      background: var(--color-ink);
+      transform-origin: left center;
+    }
+    #r-playhead {
+      position: absolute;
+      top: 130px;
+      width: 1px;
+      height: 800px;
+      background: var(--color-ink);
+      opacity: 0.4;
+    }
+    #r-chart {
+      position: absolute;
+      inset: 0;
+    }
+    .bandrule {
+      position: absolute;
+      left: 64px;
+      height: 3px;
+      background: var(--color-ink);
+      opacity: 0.5;
+      transform-origin: left center;
+    }
+    .blk {
+      position: absolute;
+      left: 64px;
+      width: 226px;
+      text-align: right;
+      transform: translateY(-50%);
+    }
+    .blabel {
+      font-family: var(--font-display);
+      font-size: 26px;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .wallnum {
+      margin-top: 2px;
+      font-family: var(--font-display);
+      font-size: 38px;
+      color: var(--color-accent);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      transform-origin: right center;
+    }
+    .bnote {
+      margin-top: 3px;
+      font-size: 17px;
+      color: var(--color-dim);
+      white-space: nowrap;
+    }
+    .body {
+      position: absolute;
+      left: 300px;
+      width: 1560px;
+    }
+    .track {
+      position: absolute;
+      left: 0;
+      width: 1560px;
+      height: 18px;
+      background: rgba(233, 242, 248, 0.05);
+    }
+    .bar {
+      position: absolute;
+      height: 18px;
+      background: var(--color-ink);
+      width: 0;
+      opacity: 0;
+    }
+    .hatch {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0;
+      opacity: 0;
+      background-image: repeating-linear-gradient(
+        45deg,
+        rgba(233, 242, 248, 0.26) 0 1px,
+        transparent 1px 8px
+      );
+      border-right: 1px solid rgba(233, 242, 248, 0.45);
+    }
+    .hlabel {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 17px;
+      color: var(--color-dim);
+      white-space: nowrap;
+      opacity: 0;
+    }
+    .wallrule {
+      position: absolute;
+      top: -5px;
+      bottom: -5px;
+      width: 2px;
+      background: var(--color-accent);
+      opacity: 0;
+    }
+    #r-read {
+      position: absolute;
+      left: 300px;
+      top: 1004px;
+      width: 1560px;
+      font-size: 21px;
+      color: var(--color-ink);
+      white-space: nowrap;
+      opacity: 0;
+    }
+    #r-read .dim {
+      color: var(--color-dim);
+    }
+  </style>
+
+  <div id="root" data-composition-id="replay" data-width="1920" data-height="1080">
+    <div id="r-rule-top"></div>
+    <div id="r-axis"></div>
+    <div id="r-ticks"></div>
+    <div id="r-reflines"></div>
+    <div id="r-playhead"></div>
+    <div id="r-chart"></div>
+
+    <div id="r-title" class="hdr">DROID COUNCIL</div>
+    <div id="r-sub" class="hdr">one task · six files · same brief</div>
+    <div id="r-clock" class="hdr">T + 000 s</div>
+    <div id="r-scale" class="hdr">×20 · 1 s of video = 20 s of run</div>
+    <div id="r-read"></div>
+  </div>
+
+  <script>
+    // ---- the film's own clock. Every bar below is read from runs/<id>/events.jsonl.
+    const PX = 1560 / 640; // px per run-second, on one shared axis
+    const T0 = 2.2; // local second at which run 0 begins
+    const K = 20; // run seconds per video second
+    const DUR = 35.6;
+    const PITCH = 24;
+    const BAR_H = 18;
+
+    const BANDS = [
+      {
+        id: "a",
+        label: "ONE DROID",
+        note: "1 droid",
+        wall: 261,
+        plan: [0, 6],
+        reduce: [228.2, 261],
+        work: [[6, 222.2]],
+        top: 150,
+      },
+      {
+        id: "b",
+        label: "COUNCIL × 6",
+        note: "13 leaves · 44 droids",
+        wall: 631,
+        plan: [0, 199.8],
+        reduce: [427.8, 626.0],
+        work: [
+          [199.7, 38.1], [199.8, 46.0], [199.8, 63.0], [199.8, 91.9], [199.8, 105.9],
+          [199.7, 228.1], [242.8, 33.3], [250.2, 93.7], [267.8, 59.7], [280.2, 99.7],
+          [297.3, 45.7], [310.3, 45.1], [332.5, 93.7],
+        ],
+        top: 240,
+      },
+      {
+        id: "c",
+        label: "COUNCIL × 16",
+        note: "13 leaves · 46 droids",
+        wall: 391,
+        plan: [0, 165.9],
+        reduce: [296.1, 386.8],
+        work: [
+          [165.9, 72.3], [165.9, 89.7], [165.9, 90.7], [165.9, 93.9], [165.9, 95.5], [166.0, 99.2],
+          [166.0, 103.3], [165.9, 107.8], [165.9, 110.5], [166.0, 113.3], [166.0, 113.7],
+          [166.0, 129.3], [165.9, 130.2],
+        ],
+        top: 618,
+      },
+    ];
+
+    // The reading line. Each entry is earned by the replay reaching its run-second.
+    const READ = [
+      { at: -1, html: "<span class='dim'>both runs start together. nothing has been built yet.</span>" },
+      { at: 6, html: "run 6 s — <span class='dim'>one droid has started. it will not stop until it is done.</span>" },
+      { at: 40, html: "run 40 s — <span class='dim'>the council is still opening sessions. 46 of them.</span>" },
+      { at: 130, html: "run 130 s — <span class='dim'>the council has built nothing yet. the lone droid is 130 s in.</span>" },
+      { at: 165.9, html: "run 165.9 s — <span class='dim'>13 workers start within 100 ms of each other. the block is solid.</span>" },
+      { at: 199.8, html: "run 199.8 s — <span class='dim'>cap 6: six workers start, seven wait for a free slot.</span>" },
+      { at: 261, html: "run 261 s — <span class='dim'>the lone droid is finished. the councils are still working.</span>" },
+      { at: 296.1, html: "run 296.1 s — <span class='dim'>the ×16 council stops building and starts judging.</span>" },
+      { at: 391, html: "run 391 s — <span class='dim'>×16 done. 130 s of that was actual building.</span>" },
+      { at: 427.8, html: "run 427.8 s — <span class='dim'>the ×6 council is still judging. its workers finished at 426 s.</span>" },
+      { at: 631, html: "run 631 s — <span class='dim'>×6 done. same task, same 13 files, 240 s behind the ×16 run.</span>" },
+    ];
+
+    const CHART = document.getElementById("r-chart");
+    const nodes = {};
+
+    // ---- furniture
+    const ticks = document.getElementById("r-ticks");
+    const reflines = document.getElementById("r-reflines");
+    for (let s = 0; s <= 640; s += 60) {
+      const x = 300 + s * PX;
+      const t = document.createElement("div");
+      t.className = "tick";
+      t.style.left = x + "px";
+      ticks.appendChild(t);
+      const r = document.createElement("div");
+      r.className = "refline";
+      r.style.left = x + "px";
+      reflines.appendChild(r);
+      if (s % 120 === 0) {
+        const l = document.createElement("div");
+        l.className = "ticklab";
+        l.style.left = x + "px";
+        l.textContent = s;
+        ticks.appendChild(l);
+      }
+    }
+    const unit = document.createElement("div");
+    unit.className = "ticklab";
+    unit.style.left = "1860px";
+    unit.style.transform = "translateX(-100%)";
+    unit.textContent = "run seconds";
+    ticks.appendChild(unit);
+
+    // ---- bands
+    for (const b of BANDS) {
+      const rows = b.work.length;
+      const h = (rows - 1) * PITCH + BAR_H;
+
+      const rule = document.createElement("div");
+      rule.className = "bandrule";
+      rule.style.top = b.top - 10 + "px";
+      rule.style.width = "1796px";
+      CHART.appendChild(rule);
+
+      const blk = document.createElement("div");
+      blk.className = "blk";
+      blk.style.top = b.top + h / 2 + "px";
+      blk.id = "blk-" + b.id;
+      blk.innerHTML =
+        '<div class="blabel">' + b.label + "</div>" +
+        '<div class="wallnum" id="wall-' + b.id + '">' + b.wall + " s</div>" +
+        '<div class="bnote">' + b.note + "</div>";
+      CHART.appendChild(blk);
+
+      const body = document.createElement("div");
+      body.className = "body";
+      body.style.top = b.top + "px";
+      body.style.height = h + "px";
+      body.id = "body-" + b.id;
+      CHART.appendChild(body);
+
+      const mk = (span) => {
+        const e = document.createElement("div");
+        e.className = "hatch";
+        e.dataset.s = span[0];
+        e.dataset.e = span[1];
+        body.appendChild(e);
+        return e;
+      };
+      mk(b.plan);
+      mk(b.reduce);
+
+      const wr = document.createElement("div");
+      wr.className = "wallrule";
+      wr.dataset.at = b.wall;
+      body.appendChild(wr);
+
+      b.work.forEach((w, i) => {
+        const t = document.createElement("div");
+        t.className = "track";
+        t.style.top = i * PITCH + "px";
+        body.appendChild(t);
+        const bar = document.createElement("div");
+        bar.className = "bar";
+        bar.style.top = i * PITCH + "px";
+        bar.dataset.s = w[0];
+        bar.dataset.d = w[1];
+        body.appendChild(bar);
+      });
+    }
+
+    const hatches = [...CHART.querySelectorAll(".hatch")];
+    const bars = [...CHART.querySelectorAll(".bar")];
+    const wallrules = [...CHART.querySelectorAll(".wallrule")];
+    const playhead = document.getElementById("r-playhead");
+    const clock = document.getElementById("r-clock");
+    const read = document.getElementById("r-read");
+
+    const pad = (n) => String(n).padStart(3, "0");
+
+    function draw(run) {
+      const r = Math.min(run, 640);
+      playhead.style.left = 300 + r * PX + "px";
+      clock.textContent = "T + " + pad(Math.min(Math.floor(run), 631)) + " s";
+
+      for (const e of hatches) {
+        const s = +e.dataset.s;
+        const len = +e.dataset.e - s;
+        const w = Math.max(0, Math.min(r - s, len)) * PX;
+        e.style.width = w + "px";
+        e.style.opacity = run >= s ? 1 : 0;
+        if (e.firstChild) e.firstChild.style.opacity = w > 210 ? 1 : 0;
+      }
+      for (const e of bars) {
+        const s = +e.dataset.s;
+        const w = Math.max(0, Math.min(r - s, +e.dataset.d)) * PX;
+        e.style.width = w + "px";
+        e.style.opacity = run >= s ? 1 : 0;
+      }
+      for (const e of wallrules) e.style.opacity = run >= +e.dataset.at ? 1 : 0;
+    }
+
+    const master = { t: 0 };
+    const tl = gsap.timeline({ paused: true });
+    tl.to(
+      master,
+      {
+        t: 1,
+        duration: DUR,
+        ease: "none",
+        onUpdate: () => draw(Math.max(0, (master.t * DUR - T0) * K)),
+      },
+      0,
+    );
+
+    // the sheet rules itself, then the replay begins
+    tl.fromTo("#r-rule-top", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power3.out" }, 0);
+    tl.fromTo("#r-axis", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power3.out" }, 0.05);
+    tl.fromTo(
+      ".tick",
+      { scaleY: 0 },
+      { scaleY: 1, duration: 0.2, ease: "power3.out", stagger: { each: 0.026, from: "start" } },
+      0.3,
+    );
+    tl.fromTo(".ticklab", { opacity: 0 }, { opacity: 1, duration: 0.25, stagger: 0.05 }, 0.42);
+    tl.fromTo(
+      ".refline",
+      { scaleY: 0 },
+      { scaleY: 1, duration: 0.5, ease: "power3.out", stagger: { each: 0.03, from: "start" } },
+      0.35,
+    );
+    tl.fromTo(
+      ".bandrule",
+      { scaleX: 0 },
+      { scaleX: 1, duration: 0.45, ease: "power3.out", stagger: 0.09 },
+      0.55,
+    );
+    tl.fromTo(
+      ".blk",
+      { opacity: 0, x: 14 },
+      { opacity: 1, x: 0, duration: 0.4, ease: "power3.out", stagger: 0.1 },
+      0.7,
+    );
+    tl.fromTo(
+      "#r-clock, #r-scale",
+      { opacity: 0, y: -10 },
+      { opacity: 1, y: 0, duration: 0.4, ease: "power3.out", stagger: 0.06 },
+      0.5,
+    );
+    tl.fromTo("#r-playhead", { opacity: 0 }, { opacity: 0.4, duration: 0.2 }, T0 - 0.05);
+    tl.fromTo("#r-read", { opacity: 0 }, { opacity: 1, duration: 0.25 }, T0 + 0.15);
+
+    // wall numbers stamp the moment each run's clock stops
+    for (const b of BANDS) {
+      tl.fromTo(
+        "#wall-" + b.id,
+        { scale: 0.72, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.3, ease: "power4.out" },
+        T0 + b.wall / K,
+      );
+    }
+
+    // the reading line is a blur swap: out fast, in on a long tail
+    READ.forEach((r, i) => {
+      const t = T0 + Math.max(r.at, 0) / K;
+      const prev = READ[i - 1];
+      if (prev && prev.at >= 0) {
+        tl.to("#r-read", { opacity: 0, filter: "blur(6px)", duration: 0.12 }, t - 0.1);
+      }
+      tl.call(() => {
+        read.innerHTML = r.html;
+        gsap.set("#r-read", { filter: "blur(6px)" });
+      }, null, t);
+      tl.to("#r-read", { opacity: 1, filter: "blur(0px)", duration: 0.28, ease: "power2.out" }, t);
+    });
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["replay"] = tl;
+  </script>
+</template>

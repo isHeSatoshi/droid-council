@@ -1,0 +1,297 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #s4-title {
+      position: absolute;
+      left: 100px;
+      top: 44px;
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      color: #fff;
+      text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
+      opacity: 0;
+    }
+    #s4-diag {
+      position: absolute;
+      left: 100px;
+      top: 116px;
+      width: 1400px;
+      height: 250px;
+    }
+    .node {
+      position: absolute;
+      padding: 10px 16px;
+      font-family: var(--font-mono);
+      font-size: 20px;
+      text-align: center;
+      white-space: nowrap;
+      opacity: 0;
+    }
+    .node .sub {
+      font-size: 16px;
+      color: #404040;
+    }
+    #s4-orch {
+      left: 0;
+      top: 62px;
+      width: 250px;
+    }
+    #s4-pool {
+      left: 470px;
+      top: 20px;
+      width: 300px;
+    }
+    #s4-leaf {
+      left: 980px;
+      top: 20px;
+      width: 300px;
+    }
+    #s4-wire {
+      position: absolute;
+      background: #fff;
+      opacity: 0;
+    }
+    #s4-cross {
+      position: absolute;
+      left: 800px;
+      top: 58px;
+      width: 116px;
+      height: 116px;
+      line-height: 106px;
+      text-align: center;
+      font-size: 82px;
+      font-weight: 900;
+      color: #c81e14;
+      background: #fff;
+      border: 3px solid #c81e14;
+      border-radius: 50%;
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.35);
+      opacity: 0;
+    }
+    #s4-note {
+      position: absolute;
+      left: 100px;
+      top: 336px;
+      font-family: var(--font-mono);
+      font-size: 21px;
+      color: #fff;
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.45);
+      opacity: 0;
+    }
+    /* the run strip */
+    #s4-strip {
+      position: absolute;
+      left: 100px;
+      top: 590px;
+      width: 1400px;
+      height: 190px;
+    }
+    #s4-axis {
+      position: absolute;
+      left: 0;
+      top: 118px;
+      width: 1400px;
+      height: 3px;
+      background: #fff;
+      box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+      transform-origin: left center;
+    }
+    #s4-row {
+      position: absolute;
+      left: 0;
+      top: 56px;
+      width: 1400px;
+      height: 52px;
+      background: rgba(0, 0, 0, 0.22);
+    }
+    #s4-plan,
+    #s4-red {
+      position: absolute;
+      left: 0;
+      top: 56px;
+      height: 52px;
+      width: 0;
+      background-image: repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.42) 0 1px,
+        transparent 1px 8px
+      );
+      border-right: 1px solid rgba(255, 255, 255, 0.6);
+      opacity: 0;
+    }
+    #s4-work {
+      position: absolute;
+      top: 56px;
+      height: 52px;
+      width: 0;
+      background: #fff;
+      opacity: 0;
+    }
+    #s4-wm {
+      position: absolute;
+      top: 44px;
+      width: 3px;
+      height: 76px;
+      background: #ff2b1d;
+      opacity: 0;
+    }
+    .lbl {
+      position: absolute;
+      font-family: var(--font-mono);
+      font-size: 18px;
+      color: #fff;
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+      opacity: 0;
+    }
+    #s4-tick {
+      position: absolute;
+      left: 0;
+      top: 108px;
+      font-family: var(--font-mono);
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffd75e;
+      transform: translateX(-50%);
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.55);
+    }
+    #s4-cap {
+      position: absolute;
+      left: 100px;
+      top: 830px;
+      width: 1400px;
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.45);
+      opacity: 0;
+    }
+  </style>
+
+  <div id="root" data-composition-id="s4" data-width="1920" data-height="1080">
+    <div id="s4-title">WHO OWNS THE TREE?</div>
+
+    <div id="s4-diag">
+      <div id="s4-orch" class="node bevel">
+        ORCHESTRATOR
+        <div class="sub">one global counter</div>
+      </div>
+      <div id="s4-pool" class="node bevel">
+        WORKER
+        <div class="sub">cannot spawn</div>
+      </div>
+      <div id="s4-leaf" class="node bevel">
+        WORKER
+        <div class="sub">cannot spawn</div>
+      </div>
+      <div id="s4-wire" style="left: 258px; top: 86px; width: 206px; height: 3px"></div>
+      <div id="s4-cross">✗</div>
+    </div>
+    <div id="s4-note">Every node is created by the orchestrator. The count is bounded in one place.</div>
+
+    <div id="s4-strip">
+      <div id="s4-row"></div>
+      <div id="s4-plan"></div>
+      <div id="s4-work"></div>
+      <div id="s4-red"></div>
+      <div id="s4-wm"></div>
+      <div id="s4-axis"></div>
+      <div class="lbl" id="s4-l1" style="left: 8px; top: 12px">session init · expand · plan</div>
+      <div class="lbl" id="s4-l2" style="left: 620px; top: 12px">13 workers</div>
+      <div class="lbl" id="s4-l3" style="left: 1020px; top: 12px">judge · reduce</div>
+      <div id="s4-tick">0 s</div>
+    </div>
+
+    <div id="s4-cap">166 s of a 391 s run went by before a single line of code was written.</div>
+  </div>
+
+  <script>
+    // real team-fast timings, on one 0-420 s axis
+    const AX = 420;
+    const W = 1400;
+    const PXS = W / AX;
+    const PLAN_END = 165.9;
+    const WORK_END = 296.1;
+    const RED_END = 386.8;
+    const WALL = 391;
+
+    const plan = document.getElementById("s4-plan");
+    const work = document.getElementById("s4-work");
+    const red = document.getElementById("s4-red");
+    const wm = document.getElementById("s4-wm");
+    const tick = document.getElementById("s4-tick");
+
+    const tl = gsap.timeline({ paused: true });
+
+    // glitch cut in: a short horizontal smear that snaps sharp
+    tl.fromTo("#root", { x: -46, filter: "blur(16px)", opacity: 0 }, { x: 0, filter: "blur(0px)", opacity: 1, duration: 0.22, ease: "power4.out" }, 0);
+
+    tl.to("#s4-title", { opacity: 1, duration: 0.3 }, 0.2);
+    tl.to("#s4-orch", { opacity: 1, duration: 0.3, ease: "power3.out" }, 0.35);
+    tl.to("#s4-wire", { opacity: 1, duration: 0.2 }, 0.6);
+    tl.to("#s4-pool", { opacity: 1, duration: 0.3, ease: "power3.out" }, 0.7);
+    tl.fromTo("#s4-cross", { opacity: 0, scale: 2.1 }, { opacity: 1, scale: 1, duration: 0.3, ease: "power4.out" }, 1.25);
+    tl.to("#s4-note", { opacity: 1, duration: 0.3 }, 1.75);
+
+    // the run strip, revealed as a live clock
+    tl.to("#s4-axis", { scaleX: 1, duration: 0.01 }, 0);
+    tl.fromTo("#s4-strip", { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 2.3);
+
+    const clock = { t: 0 };
+    tl.to(
+      clock,
+      {
+        t: 1,
+        duration: 3.4,
+        ease: "none",
+        onUpdate: () => {
+          const s = clock.t * PLAN_END;
+          plan.style.width = s * PXS + "px";
+          plan.style.opacity = 1;
+          tick.textContent = Math.round(s) + " s";
+          tick.style.left = s * PXS + "px";
+        },
+      },
+      2.8,
+    );
+    tl.set("#s4-tick", { color: "#fff", fontSize: 19 }, 6.2);
+    tl.to("#s4-l1", { opacity: 1, duration: 0.25 }, 3.2);
+
+    // the block lands all at once, because the real starts are 100 ms apart.
+    // geometry is written straight to the element; only the reveal is tweened.
+    work.style.left = PLAN_END * PXS + "px";
+    work.style.width = (WORK_END - PLAN_END) * PXS + "px";
+    red.style.left = WORK_END * PXS + "px";
+    red.style.width = (RED_END - WORK_END) * PXS + "px";
+
+    tl.fromTo(
+      "#s4-work",
+      { opacity: 0, clipPath: "inset(0 100% 0 0)" },
+      { opacity: 1, clipPath: "inset(0 0% 0 0)", duration: 0.16, ease: "power2.out" },
+      6.25,
+    );
+    tl.to("#s4-l2", { opacity: 1, duration: 0.25 }, 6.4);
+    tl.fromTo(
+      "#s4-red",
+      { opacity: 0, clipPath: "inset(0 100% 0 0)" },
+      { opacity: 1, clipPath: "inset(0 0% 0 0)", duration: 0.16 },
+      6.6,
+    );
+    tl.to("#s4-l3", { opacity: 1, duration: 0.25 }, 6.75);
+    wm.style.left = WALL * PXS + "px";
+    tl.to("#s4-wm", { opacity: 1, duration: 0.02 }, 6.9);
+
+    tl.to("#s4-cap", { opacity: 1, duration: 0.35 }, 7.0);
+    // the caption clears out before the push-in, so it never slides into the presenter strip
+    tl.to("#s4-cap", { opacity: 0, duration: 0.18, ease: "power2.in" }, 8.92);
+
+    // hand off to the next shot: the strip's work block grows past the frame
+    tl.to("#root", { scale: 1.42, x: -180, y: 40, transformOrigin: "30% 62%", duration: 0.75, ease: "power2.in" }, 9.11);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["s4"] = tl;
+  </script>
+</template>

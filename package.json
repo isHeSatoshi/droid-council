@@ -1,0 +1,34 @@
+{
+  "name": "droid-council",
+  "version": "1.0.0",
+  "description": "A council of droids that decompose a task, work in parallel, and merge their findings — MapReduce over a task tree, built on the Droid TypeScript SDK.",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "droid",
+    "factory",
+    "multi-agent",
+    "orchestration",
+    "mapreduce",
+    "ai-agents",
+    "parallel"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "council": "tsx --env-file-if-exists=.env council.ts",
+    "plan": "tsx --env-file-if-exists=.env council.ts --plan-only",
+    "ui": "tsx --env-file-if-exists=.env serve.ts",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@factory/droid-sdk": "^0.10.0"
+  },
+  "devDependencies": {
+    "@factory/cli": "^0.245.0",
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

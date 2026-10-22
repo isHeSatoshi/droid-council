@@ -1,0 +1,258 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #s5-title {
+      position: absolute;
+      left: 100px;
+      top: 42px;
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      color: #fff;
+      text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
+      opacity: 0;
+    }
+    #s5-sub {
+      position: absolute;
+      left: 100px;
+      top: 84px;
+      font-family: var(--font-mono);
+      font-size: 20px;
+      color: #d8ffff;
+      opacity: 0;
+    }
+    #s5-bars {
+      position: absolute;
+      left: 100px;
+      top: 122px;
+      width: 1400px;
+    }
+    .wrow {
+      position: absolute;
+      left: 0;
+      width: 1400px;
+      height: 18px;
+    }
+    .wrow .track {
+      position: absolute;
+      left: 280px;
+      right: 0;
+      height: 18px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+    .wrow .bar {
+      position: absolute;
+      left: 280px;
+      height: 18px;
+      width: 0;
+      background: #fff;
+    }
+    .wrow .idx {
+      position: absolute;
+      left: 0;
+      width: 264px;
+      text-align: right;
+      font-family: var(--font-mono);
+      font-size: 16px;
+      line-height: 18px;
+      color: rgba(255, 255, 255, 0.72);
+    }
+    #s5-gate {
+      position: absolute;
+      left: 378px;
+      top: 112px;
+      width: 3px;
+      height: 340px;
+      background: #ffd75e;
+      opacity: 0;
+    }
+    #s5-gatelab {
+      position: absolute;
+      left: 392px;
+      top: 466px;
+      font-family: var(--font-mono);
+      font-size: 19px;
+      font-weight: 700;
+      color: #ffd75e;
+      opacity: 0;
+    }
+    /* the compare */
+    #s5-cmp {
+      position: absolute;
+      left: 100px;
+      top: 540px;
+      width: 1420px;
+      opacity: 0;
+    }
+    .crow {
+      position: absolute;
+      left: 0;
+      height: 46px;
+    }
+    .crow .nm {
+      position: absolute;
+      left: 0;
+      width: 264px;
+      text-align: right;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      line-height: 46px;
+      color: #fff;
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+    }
+    .crow .tr {
+      position: absolute;
+      left: 280px;
+      right: 0;
+      height: 46px;
+      background: rgba(0, 0, 0, 0.22);
+    }
+    .crow .fl {
+      position: absolute;
+      left: 280px;
+      height: 46px;
+      width: 0;
+    }
+    .crow .vv {
+      position: absolute;
+      top: 0;
+      height: 46px;
+      line-height: 46px;
+      font-family: var(--font-mono);
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.45);
+      opacity: 0;
+    }
+    #s5-wall .fl {
+      background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.5) 0 1px, transparent 1px 9px);
+      border-right: 1px solid rgba(255, 255, 255, 0.7);
+    }
+    #s5-work .fl {
+      background: #fff;
+    }
+    #s5-ratio {
+      position: absolute;
+      left: 700px;
+      top: 838px;
+      width: 800px;
+      text-align: right;
+      font-size: 190px;
+      font-weight: 900;
+      line-height: 1;
+      color: #ffd75e;
+      text-shadow: 5px 5px 0 rgba(0, 0, 0, 0.4);
+      transform-origin: 100% 60%;
+      opacity: 0;
+    }
+    #s5-rlab {
+      position: absolute;
+      left: 700px;
+      top: 1038px;
+      width: 800px;
+      text-align: right;
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.45);
+      opacity: 0;
+    }
+  </style>
+
+  <div id="root" data-composition-id="s5" data-width="1920" data-height="1080">
+    <div id="s5-title">THE EXECUTE PHASE</div>
+    <div id="s5-sub">team-fast · all 13 workers start at 165.9 s · real event log</div>
+    <div id="s5-bars"></div>
+    <div id="s5-gate"></div>
+    <div id="s5-gatelab">all 13 start within 100 ms</div>
+
+    <div id="s5-cmp">
+      <div class="crow" id="s5-wall" style="top: 0">
+        <div class="nm">WALL CLOCK</div>
+        <div class="tr"></div>
+        <div class="fl"></div>
+        <div class="vv"></div>
+      </div>
+      <div class="crow" id="s5-work" style="top: 66px">
+        <div class="nm">WORK DONE</div>
+        <div class="tr"></div>
+        <div class="fl"></div>
+        <div class="vv"></div>
+      </div>
+    </div>
+
+    <div id="s5-ratio">10.4×</div>
+    <div id="s5-rlab">1349 s of worker time inside 130 s of wall clock</div>
+  </div>
+
+  <script>
+    // real per-worker durations from runs/team-fast/events.jsonl, ascending
+    const DUR = [72.3, 89.7, 90.7, 93.9, 95.5, 99.2, 103.3, 107.8, 110.5, 113.3, 113.7, 129.3, 130.2];
+    const PXW = 1120 / 130.2; // px per worker-second, to the longest worker
+    const BARS = document.getElementById("s5-bars");
+
+    DUR.forEach((d, i) => {
+      const r = document.createElement("div");
+      r.className = "wrow";
+      r.style.top = i * 24 + "px";
+      r.innerHTML =
+        '<div class="idx">worker ' + String(i + 1).padStart(2, "0") + " · " + d.toFixed(1) + " s</div>" +
+        '<div class="track"></div><div class="bar"></div>';
+      r.querySelector(".bar").style.width = d * PXW + "px";
+      r.dataset.w = d * PXW;
+      BARS.appendChild(r);
+    });
+    const rows = [...BARS.querySelectorAll(".wrow")];
+    const barEls = rows.map((r) => r.querySelector(".bar"));
+
+    const CMPW = 1120 / 1349;
+    const wallFl = document.querySelector("#s5-wall .fl");
+    const workFl = document.querySelector("#s5-work .fl");
+    const wallV = document.querySelector("#s5-wall .vv");
+    const workV = document.querySelector("#s5-work .vv");
+
+    const tl = gsap.timeline({ paused: true });
+
+    // arriving from the push-in: starts large and settles, sharpening
+    tl.fromTo("#root", { scale: 1.3, filter: "blur(18px)", opacity: 0 }, { scale: 1, filter: "blur(0px)", opacity: 1, duration: 0.42, ease: "power3.out" }, 0);
+
+    tl.to("#s5-title", { opacity: 1, duration: 0.28 }, 0.3);
+    tl.to("#s5-sub", { opacity: 1, duration: 0.28 }, 0.55);
+
+    // thirteen bars, one frame. the stagger is 1 frame each, not a slide.
+    barEls.forEach((b, i) => {
+      tl.fromTo(b, { scaleX: 0, transformOrigin: "left center" }, { scaleX: 1, duration: 0.3, ease: "power2.out" }, 0.9 + i * 0.033);
+    });
+    tl.fromTo("#s5-gate", { opacity: 0, scaleY: 0.4 }, { opacity: 1, scaleY: 1, duration: 0.25, ease: "power3.out", transformOrigin: "top" }, 0.85);
+    tl.to("#s5-gatelab", { opacity: 1, duration: 0.25 }, 1.15);
+
+    // the same thirteen seconds, re-measured as work
+    tl.to("#s5-bars, #s5-gate, #s5-gatelab", { opacity: 0.26, duration: 0.3 }, 5.1);
+    tl.fromTo("#s5-cmp", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }, 5.2);
+
+    tl.fromTo(wallFl, { scaleX: 0, transformOrigin: "left center" }, { scaleX: 1, duration: 0.45, ease: "power3.out" }, 5.5);
+    tl.set(wallFl, { width: 130 * CMPW }, 5.5);
+    tl.set(wallV, { left: 280 + 130 * CMPW + 16 }, 5.5);
+    tl.to(wallV, { opacity: 1, duration: 0.2 }, 5.85);
+
+    tl.fromTo(workFl, { scaleX: 0, transformOrigin: "left center" }, { scaleX: 1, duration: 0.75, ease: "power3.out" }, 6.3);
+    tl.set(workFl, { width: 1349 * CMPW }, 6.3);
+    tl.set(workV, { left: 280 + 1349 * CMPW - 16, transform: "translateX(-100%)", color: "#0b3b3b" }, 6.3);
+    tl.to(workV, { opacity: 1, duration: 0.2 }, 7.0);
+
+    tl.fromTo("#s5-ratio", { opacity: 0, scale: 1.9 }, { opacity: 1, scale: 1, duration: 0.36, ease: "power4.out" }, 8.2);
+    tl.to("#s5-rlab", { opacity: 1, duration: 0.3 }, 8.6);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["s5"] = tl;
+
+    // the value labels read the real numbers
+    wallV.textContent = "130 s";
+    workV.textContent = "1349 s";
+  </script>
+</template>

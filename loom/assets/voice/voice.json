@@ -1,0 +1,86 @@
+[
+  {
+    "id": "l01",
+    "text": "Hi! It looks like you're trying to build a droid council.",
+    "file": "assets/voice/l01.wav",
+    "seconds": 2.971
+  },
+  {
+    "id": "l02",
+    "text": "I'm Clippy. Here's what happened when forty-six droids tried to do one job.",
+    "file": "assets/voice/l02.wav",
+    "seconds": 4.053
+  },
+  {
+    "id": "l03",
+    "text": "One task. A six-file Python package, each file with its own tests.",
+    "file": "assets/voice/l03.wav",
+    "seconds": 4.954
+  },
+  {
+    "id": "l04",
+    "text": "Run A, one droid. Run B, a council of forty-six.",
+    "file": "assets/voice/l04.wav",
+    "seconds": 3.558
+  },
+  {
+    "id": "l05",
+    "text": "The council splits the task into thirteen leaves, then runs a fixed worker pool over them.",
+    "file": "assets/voice/l05.wav",
+    "seconds": 4.657
+  },
+  {
+    "id": "l06",
+    "text": "No droid ever spawns a droid. The orchestrator owns every node. That's the trick.",
+    "file": "assets/voice/l06.wav",
+    "seconds": 5.481
+  },
+  {
+    "id": "l07",
+    "text": "Now watch the clock. For the first one hundred and sixty-six seconds, the council builds nothing.",
+    "file": "assets/voice/l07.wav",
+    "seconds": 4.08
+  },
+  {
+    "id": "l08",
+    "text": "It's opening sessions. The lone droid has been writing code since second six.",
+    "file": "assets/voice/l08.wav",
+    "seconds": 4.825
+  },
+  {
+    "id": "l09",
+    "text": "But look at the execute phase. Thirteen workers. Thirteen hundred and forty-nine seconds of work, inside one hundred and thirty seconds of clock.",
+    "file": "assets/voice/l09.wav",
+    "seconds": 6.377
+  },
+  {
+    "id": "l10",
+    "text": "Ten point four times the throughput.",
+    "file": "assets/voice/l10.wav",
+    "seconds": 1.836
+  },
+  {
+    "id": "l11",
+    "text": "So who wins end to end? The single droid. Two hundred and sixty-one seconds against three hundred and ninety-one.",
+    "file": "assets/voice/l11.wav",
+    "seconds": 5.702
+  },
+  {
+    "id": "l12",
+    "text": "And ten thousand credits against eighty-two thousand.",
+    "file": "assets/voice/l12.wav",
+    "seconds": 2.231
+  },
+  {
+    "id": "l13",
+    "text": "A council pays off when the work is bigger than one context window.",
+    "file": "assets/voice/l13.wav",
+    "seconds": 3.11
+  },
+  {
+    "id": "l14",
+    "text": "Below that, you're just paying for session startup.",
+    "file": "assets/voice/l14.wav",
+    "seconds": 1.98
+  }
+]

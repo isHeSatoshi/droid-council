@@ -1,0 +1,278 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #s3-dither {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 40;
+    }
+    #s3-dither i {
+      position: absolute;
+      width: 96px;
+      height: 96px;
+      background: var(--desktop);
+      display: block;
+    }
+    #s3-title {
+      position: absolute;
+      left: 100px;
+      top: 46px;
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      color: #fff;
+      text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
+      opacity: 0;
+    }
+    .runcard {
+      position: absolute;
+      top: 120px;
+      width: 800px;
+      height: 212px;
+      opacity: 0;
+      transform: translateY(22px);
+    }
+    .runcard .inner {
+      padding: 14px 20px 16px;
+    }
+    .runcard h3 {
+      font-size: 25px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+    }
+    .runcard .cmd {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: #000;
+      color: #d6d6d6;
+      font-family: var(--font-mono);
+      font-size: 18px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .runcard .cmd b {
+      color: #7fd4ff;
+      font-weight: 400;
+    }
+    .runcard .res {
+      margin-top: 10px;
+      display: flex;
+      gap: 20px;
+      font-family: var(--font-mono);
+      font-size: 20px;
+      align-items: baseline;
+    }
+    .runcard .res em {
+      font-style: normal;
+      font-size: 27px;
+      font-weight: 700;
+    }
+    .runcard .res .k {
+      font-size: 17px;
+      color: #404040;
+    }
+    #s3-pipe {
+      position: absolute;
+      left: 100px;
+      top: 366px;
+      width: 1080px;
+      height: 360px;
+    }
+    #s3-pipe .h {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      color: #fff;
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+      opacity: 0;
+    }
+    .stage {
+      position: absolute;
+      top: 40px;
+      width: 300px;
+      height: 148px;
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    .stage .in {
+      padding: 12px 14px;
+      text-align: center;
+    }
+    .stage .nm {
+      font-size: 23px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+    }
+    .stage .n {
+      margin-top: 6px;
+      font-family: var(--font-mono);
+      font-size: 40px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+    .stage .u {
+      font-size: 17px;
+      color: #404040;
+    }
+    .arw {
+      position: absolute;
+      top: 96px;
+      width: 52px;
+      height: 34px;
+      opacity: 0;
+    }
+    .arw::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 15px;
+      width: 30px;
+      height: 4px;
+      background: #fff;
+      box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
+    }
+    .arw::after {
+      content: "";
+      position: absolute;
+      right: 2px;
+      top: 8px;
+      border-left: 18px solid #fff;
+      border-top: 9px solid transparent;
+      border-bottom: 9px solid transparent;
+      filter: drop-shadow(1px 1px 0 rgba(0, 0, 0, 0.35));
+    }
+    #s3-total {
+      position: absolute;
+      left: 100px;
+      top: 316px;
+      font-family: var(--font-mono);
+      font-size: 22px;
+      color: #fff;
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.45);
+      opacity: 0;
+    }
+    #s3-code {
+      position: absolute;
+      left: 100px;
+      top: 716px;
+      width: 1080px;
+      opacity: 0;
+    }
+    #s3-code .in {
+      padding: 14px 18px;
+      font-family: var(--font-mono);
+      font-size: 19px;
+      line-height: 1.85;
+      white-space: pre;
+    }
+    #s3-code .k {
+      color: #0000c8;
+      font-weight: 700;
+    }
+    #s3-code .m {
+      color: #7a4000;
+    }
+    #s3-code .c {
+      color: #4a6a4a;
+    }
+  </style>
+
+  <div id="root" data-composition-id="s3" data-width="1920" data-height="1080">
+    <div id="s3-title">TWO RUNS, ONE TASK</div>
+
+    <div id="s3-runA" class="runcard bevel" style="left: 100px">
+      <div class="inner">
+        <h3>RUN A — ONE DROID</h3>
+        <div class="cmd"><b>D:\&gt;</b> npx tsx council.ts "&lt;task&gt;" <b>--mode single</b> --label cmp-single</div>
+        <div class="res"><em>1</em><span class="k">droid</span></div>
+      </div>
+    </div>
+
+    <div id="s3-runB" class="runcard bevel" style="left: 940px">
+      <div class="inner">
+        <h3>RUN B — THE COUNCIL</h3>
+        <div class="cmd"><b>D:\&gt;</b> npx tsx council.ts "&lt;task&gt;"<br>    <b>--mode team</b> --leaves 13 <b>--concurrency 16</b></div>
+        <div class="res"><em>46</em><span class="k">droids</span></div>
+      </div>
+    </div>
+
+    <div id="s3-pipe">
+      <div class="h">EXPAND → EXECUTE → REDUCE</div>
+      <div class="stage bevel" id="s3-st1" style="left: 0">
+        <div class="in">
+          <div class="nm">EXPAND</div>
+          <div class="n">26</div>
+          <div class="u">planner calls</div>
+        </div>
+      </div>
+      <div class="arw" id="s3-ar1" style="left: 318px"></div>
+      <div class="stage bevel" id="s3-st2" style="left: 390px">
+        <div class="in">
+          <div class="nm">EXECUTE</div>
+          <div class="n">13</div>
+          <div class="u">workers</div>
+        </div>
+      </div>
+      <div class="arw" id="s3-ar2" style="left: 708px"></div>
+      <div class="stage bevel" id="s3-st3" style="left: 780px">
+        <div class="in">
+          <div class="nm">REDUCE</div>
+          <div class="n">7</div>
+          <div class="u">judge calls</div>
+        </div>
+      </div>
+      <div id="s3-total">26 + 13 + 7 = 46 droids · one budget, counted in one place</div>
+    </div>
+
+    <div id="s3-code" class="bevel">
+      <div class="in"><span class="k">async function</span> <span class="m">expand</span>(root)  <span class="c">// breadth-first, returns a flat Node[]</span>
+<span class="k">async function</span> <span class="m">pool</span>(items, n, fn)  <span class="c">// fixed workers, one shared cursor</span>
+<span class="k">async function</span> <span class="m">slot</span>(fn)  <span class="c">// the semaphore wraps the SDK call, never the recursion</span></div>
+    </div>
+
+    <div id="s3-dither"></div>
+  </div>
+
+  <script>
+    // a 90s-style dither wipe: a grid of desktop-coloured tiles that leave in a diagonal wave
+    const d = document.getElementById("s3-dither");
+    const tiles = [];
+    for (let y = 0; y < 1080; y += 96) {
+      for (let x = 0; x < 1920; x += 96) {
+        const t = document.createElement("i");
+        t.style.left = x + "px";
+        t.style.top = y + "px";
+        d.appendChild(t);
+        tiles.push({ el: t, order: (x / 96 + y / 96) * 0.016 });
+      }
+    }
+
+    const tl = gsap.timeline({ paused: true });
+
+    tiles.forEach((t) => {
+      tl.to(t.el, { opacity: 0, duration: 0.01 }, 0.02 + t.order);
+    });
+    tl.to("#s3-dither", { opacity: 0, duration: 0.01 }, 0.9);
+
+    tl.to("#s3-title", { opacity: 1, duration: 0.3, ease: "power3.out" }, 0.42);
+    tl.to("#s3-runA", { opacity: 1, y: 0, duration: 0.4, ease: "power4.out" }, 0.6);
+    tl.to("#s3-runB", { opacity: 1, y: 0, duration: 0.4, ease: "power4.out" }, 0.78);
+
+    tl.to("#s3-pipe .h", { opacity: 1, duration: 0.3 }, 1.9);
+    tl.to("#s3-st1", { opacity: 1, scale: 1, duration: 0.34, ease: "power4.out" }, 2.05);
+    tl.to("#s3-ar1", { opacity: 1, duration: 0.2 }, 2.3);
+    tl.to("#s3-st2", { opacity: 1, scale: 1, duration: 0.34, ease: "power4.out" }, 2.45);
+    tl.to("#s3-ar2", { opacity: 1, duration: 0.2 }, 2.7);
+    tl.to("#s3-st3", { opacity: 1, scale: 1, duration: 0.34, ease: "power4.out" }, 2.85);
+    tl.to("#s3-total", { opacity: 1, duration: 0.3 }, 3.5);
+    tl.to("#s3-code", { opacity: 1, duration: 0.4, ease: "power3.out" }, 4.6);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["s3"] = tl;
+  </script>
+</template>

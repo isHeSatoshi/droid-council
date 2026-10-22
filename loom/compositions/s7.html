@@ -1,0 +1,133 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #s7-dlg {
+      left: 140px;
+      top: 200px;
+      width: 1320px;
+      height: 500px;
+    }
+    #s7-body {
+      position: absolute;
+      inset: 32px 4px 4px 4px;
+      padding: 34px 40px 30px;
+      background: var(--face);
+    }
+    #s7-line1 {
+      font-size: 52px;
+      font-weight: 900;
+      line-height: 1.2;
+      letter-spacing: -0.005em;
+      color: #101010;
+    }
+    #s7-line2 {
+      margin-top: 26px;
+      font-size: 44px;
+      font-weight: 900;
+      line-height: 1.2;
+      color: #a01818;
+    }
+    #s7-cmd {
+      margin-top: 34px;
+      padding: 16px 18px;
+      background: #000;
+      color: #d6d6d6;
+      font-family: var(--font-mono);
+      font-size: 20px;
+      line-height: 1.4;
+      white-space: pre;
+    }
+    #s7-cmd b {
+      color: #7fd4ff;
+      font-weight: 400;
+    }
+    #s7-foot {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #s7-meta {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      color: #3a3a3a;
+    }
+    #s7-btns {
+      display: flex;
+      gap: 12px;
+    }
+    #s7-btns span {
+      display: block;
+      min-width: 118px;
+      padding: 8px 20px;
+      text-align: center;
+      font-size: 21px;
+      font-weight: 700;
+      background: var(--face);
+      border-top: 2px solid var(--hilite);
+      border-left: 2px solid var(--hilite);
+      border-right: 2px solid #000;
+      border-bottom: 2px solid #000;
+      box-shadow:
+        inset 1px 1px 0 #dfdfdf,
+        inset -1px -1px 0 var(--shadow);
+    }
+    #s7-btns span.on {
+      border-top: 2px solid #000;
+      border-left: 2px solid #000;
+      border-right: 2px solid var(--hilite);
+      border-bottom: 2px solid var(--hilite);
+      box-shadow: inset 1px 1px 0 var(--shadow);
+    }
+  </style>
+
+  <div id="root" data-composition-id="s7" data-width="1920" data-height="1080">
+    <div id="s7-dlg" class="win bevel">
+      <div class="tbar">
+        <span>droid council</span>
+        <div class="btns"><i>×</i></div>
+      </div>
+      <div id="s7-body">
+        <div id="s7-line1">A council pays off when the work is bigger than one context window.</div>
+        <div id="s7-line2">Below that, you are just paying for session startup.</div>
+        <div id="s7-cmd"><b>D:\Project\droid council&gt;</b> npx tsx council.ts "&lt;task&gt;" --mode team --leaves 13 --concurrency 16</div>
+        <div id="s7-foot">
+          <div id="s7-meta">glm-5.3-flash · 46 droids · 82,550 credits · MIT</div>
+          <div id="s7-btns"><span>OK</span><span>Copy</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+
+    // a dialog lands the way 95 landed one: one quick scale, no bounce
+    tl.fromTo("#s7-dlg", { opacity: 0, scale: 0.86 }, { opacity: 1, scale: 1, duration: 0.3, ease: "power4.out" }, 0);
+
+    // line one arrives word by word, blurring into place
+    const l1 = document.getElementById("s7-line1");
+    l1.innerHTML = l1.textContent
+      .split(" ")
+      .map((w) => '<span style="display:inline-block">' + w + "</span>")
+      .join(" ");
+    tl.fromTo(
+      "#s7-line1 span",
+      { opacity: 0, filter: "blur(6px)" },
+      { opacity: 1, filter: "blur(0px)", duration: 0.14, stagger: 0.045, ease: "power2.out" },
+      0.2,
+    );
+
+    tl.fromTo("#s7-line2", { opacity: 0, x: -18 }, { opacity: 1, x: 0, duration: 0.36, ease: "power4.out" }, 3.26);
+    tl.fromTo("#s7-cmd", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.34, ease: "power3.out" }, 4.5);
+    tl.fromTo("#s7-meta, #s7-btns span", { opacity: 0 }, { opacity: 1, duration: 0.3, stagger: 0.08 }, 5.0);
+    // the OK button is the default, so it presses once and holds
+    tl.to("#s7-btns span:first-child", { scale: 0.94, duration: 0.08, yoyo: true, repeat: 1, transformOrigin: "50% 50%" }, 5.6);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["s7"] = tl;
+  </script>
+</template>

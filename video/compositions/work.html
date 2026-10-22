@@ -1,0 +1,296 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      font-family: var(--font-mono);
+      color: var(--color-ink);
+    }
+    #w-title {
+      position: absolute;
+      left: 64px;
+      top: 30px;
+      font-family: var(--font-display);
+      font-size: 34px;
+      letter-spacing: 0.04em;
+    }
+    #w-sub {
+      position: absolute;
+      left: 64px;
+      top: 76px;
+      font-size: 19px;
+      color: var(--color-dim);
+    }
+    #w-rule {
+      position: absolute;
+      left: 64px;
+      top: 118px;
+      width: 1796px;
+      height: 3px;
+      background: var(--color-ink);
+      opacity: 0.75;
+      transform-origin: left center;
+    }
+    #w-axis {
+      position: absolute;
+      left: 340px;
+      top: 884px;
+      width: 1360px;
+      height: 3px;
+      background: var(--color-ink);
+      transform-origin: left center;
+    }
+    #w-unit {
+      position: absolute;
+      right: 60px;
+      top: 906px;
+      font-size: 18px;
+      color: var(--color-dim);
+    }
+    .tick {
+      position: absolute;
+      top: 884px;
+      width: 1px;
+      height: 12px;
+      background: var(--color-dim);
+      transform-origin: top center;
+    }
+    .ticklab {
+      position: absolute;
+      top: 906px;
+      font-size: 18px;
+      color: var(--color-dim);
+      transform: translateX(-50%);
+    }
+    .gblk {
+      position: absolute;
+      left: 64px;
+      width: 256px;
+      text-align: right;
+      transform: translateY(-50%);
+    }
+    .glabel {
+      font-family: var(--font-display);
+      font-size: 26px;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .gnote {
+      margin-top: 3px;
+      font-size: 17px;
+      color: var(--color-dim);
+      white-space: nowrap;
+    }
+    .track {
+      position: absolute;
+      left: 340px;
+      width: 1360px;
+      height: 44px;
+      background: rgba(233, 242, 248, 0.05);
+    }
+    .wall {
+      position: absolute;
+      left: 340px;
+      height: 44px;
+      width: 0;
+      background-image: repeating-linear-gradient(
+        45deg,
+        rgba(233, 242, 248, 0.34) 0 1px,
+        transparent 1px 9px
+      );
+    }
+    .work {
+      position: absolute;
+      left: 340px;
+      height: 44px;
+      width: 0;
+      background: var(--color-ink);
+    }
+    /* one text element per row: the number and what it measures, never two blocks */
+    .rowval {
+      position: absolute;
+      font-size: 23px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      transform: translateY(-50%);
+      opacity: 0;
+    }
+    .rowval .u {
+      font-size: 17px;
+      color: var(--color-dim);
+    }
+    .ratio {
+      position: absolute;
+      left: 1860px;
+      font-family: var(--font-display);
+      font-size: 44px;
+      color: var(--color-accent);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      text-align: right;
+      transform: translate(-100%, -50%) scale(1);
+      transform-origin: right center;
+      opacity: 0;
+    }
+    #w-foot {
+      position: absolute;
+      left: 64px;
+      top: 952px;
+      width: 1796px;
+      font-size: 21px;
+      color: var(--color-dim);
+      opacity: 0;
+    }
+  </style>
+
+  <div id="root" data-composition-id="work" data-width="1920" data-height="1080">
+    <div id="w-title">THE SAME THIRTEEN TASKS</div>
+    <div id="w-sub">execute phase only — every worker's own seconds, added up</div>
+    <div id="w-rule"></div>
+    <div id="w-axis"></div>
+    <div id="w-unit">work seconds</div>
+    <div id="w-ticks"></div>
+    <div id="w-chart"></div>
+    <div id="w-foot">
+      The council's work bar is long because thirteen droids ran at once. The droid's two bars are
+      the same length because it had nothing to overlap.
+    </div>
+  </div>
+
+  <script>
+    const X0 = 340;
+    const CW = 1360;
+    const PXS = CW / 1349; // px per work-second
+    const CHART = document.getElementById("w-chart");
+    const PITCH = 216;
+    const TOP = 226;
+    const TY = 22; // vertical centre inside a 44 px track
+
+    const GROUPS = [
+      { id: "a", label: "ONE DROID", note: "1 worker", wall: 222, work: 222, ratio: "1.0×" },
+      { id: "b", label: "COUNCIL × 6", note: "13 workers", wall: 228, work: 1044, ratio: "4.6×" },
+      { id: "c", label: "COUNCIL × 16", note: "13 workers", wall: 130, work: 1349, ratio: "10.4×" },
+    ];
+
+    const ticks = document.getElementById("w-ticks");
+    for (let s = 0; s <= 1200; s += 200) {
+      const x = X0 + s * PXS;
+      const t = document.createElement("div");
+      t.className = "tick";
+      t.style.left = x + "px";
+      ticks.appendChild(t);
+      const l = document.createElement("div");
+      l.className = "ticklab";
+      l.style.left = x + "px";
+      l.textContent = s;
+      ticks.appendChild(l);
+    }
+
+    const el = (cls, id) => {
+      const e = document.createElement("div");
+      e.className = cls;
+      if (id) e.id = id;
+      CHART.appendChild(e);
+      return e;
+    };
+
+    GROUPS.forEach((g, gi) => {
+      const gy = TOP + gi * PITCH;
+      const wallY = gy;
+      const workY = gy + 58;
+
+      const blk = el("gblk", "g-" + g.id);
+      blk.style.top = gy + 52 + "px";
+      blk.innerHTML =
+        '<div class="glabel">' + g.label + "</div>" + '<div class="gnote">' + g.note + "</div>";
+
+      [wallY, workY].forEach((y) => {
+        const t = el("track");
+        t.style.top = y + "px";
+      });
+
+      const wl = el("wall", "wall-" + g.id);
+      wl.style.top = wallY + "px";
+      wl.style.width = g.wall * PXS + "px";
+
+      const wk = el("work", "work-" + g.id);
+      wk.style.top = workY + "px";
+      wk.style.width = g.work * PXS + "px";
+
+      // wall row: value always outside the bar (short bars, room to the right)
+      const vw = el("rowval", "vw-" + g.id);
+      vw.style.top = wallY + TY + "px";
+      vw.style.left = X0 + g.wall * PXS + 14 + "px";
+      vw.innerHTML = g.wall + ' s <span class="u">wall clock</span>';
+
+      // work row: outside, except the one bar that reaches the axis end
+      const vk = el("rowval", "vk-" + g.id);
+      vk.style.top = workY + TY + "px";
+      const outside = X0 + g.work * PXS + 14 + 250 < 1860;
+      if (outside) {
+        vk.style.left = X0 + g.work * PXS + 14 + "px";
+        vk.innerHTML = g.work + ' s <span class="u">work done</span>';
+      } else {
+        vk.style.left = X0 + g.work * PXS - 14 + "px";
+        vk.style.transform = "translate(-100%, -50%)";
+        vk.style.color = "var(--color-ground)";
+        vk.innerHTML = g.work + ' s <span class="u" style="color:#7c8b96">work done</span>';
+      }
+
+      const r = el("ratio", "r-" + g.id);
+      r.style.top = gy + 74 + "px";
+      r.textContent = g.ratio;
+    });
+
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#w-rule, #w-axis", { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: "power3.out" }, 0);
+    tl.fromTo(
+      ".tick",
+      { scaleY: 0 },
+      { scaleY: 1, duration: 0.2, stagger: 0.02, ease: "power3.out" },
+      0.2,
+    );
+    tl.fromTo(
+      "#w-title, #w-sub",
+      { opacity: 0, y: -10 },
+      { opacity: 1, y: 0, duration: 0.35, ease: "power3.out", stagger: 0.06 },
+      0.1,
+    );
+    tl.fromTo(".ticklab, #w-unit", { opacity: 0 }, { opacity: 1, duration: 0.25, stagger: 0.02 }, 0.3);
+    tl.fromTo(
+      ".gblk",
+      { opacity: 0, x: 14 },
+      { opacity: 1, x: 0, duration: 0.35, ease: "power3.out", stagger: 0.1 },
+      0.25,
+    );
+
+    GROUPS.forEach((g, i) => {
+      const t = 0.6 + i * 1.15;
+      tl.fromTo(
+        "#wall-" + g.id,
+        { scaleX: 0, transformOrigin: "left center" },
+        { scaleX: 1, duration: 0.45, ease: "power3.out" },
+        t,
+      );
+      tl.fromTo(
+        "#work-" + g.id,
+        { scaleX: 0, transformOrigin: "left center" },
+        { scaleX: 1, duration: 0.85, ease: "power3.out" },
+        t + 0.18,
+      );
+      tl.to("#vw-" + g.id, { opacity: 1, duration: 0.25 }, t + 0.34);
+      tl.to("#vk-" + g.id, { opacity: 1, duration: 0.25 }, t + 0.8);
+      tl.fromTo(
+        "#r-" + g.id,
+        { scale: 0.72, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.3, ease: "power4.out" },
+        t + 1.05,
+      );
+    });
+
+    tl.to("#w-foot", { opacity: 1, duration: 0.4 }, 4.8);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["work"] = tl;
+  </script>
+</template>

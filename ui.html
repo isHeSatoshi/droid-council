@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>droid-council</title>
+<style>
+  :root{
+    --bg:#0b0d10; --panel:#12151a; --line:#222831; --ink:#e6e9ee; --dim:#8b95a5;
+    --plan:#a78bfa; --work:#34d399; --judge:#fbbf24; --fail:#f87171;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  header{display:flex;gap:16px;align-items:center;padding:14px 20px;border-bottom:1px solid var(--line);
+         position:sticky;top:0;background:var(--bg);z-index:10;flex-wrap:wrap}
+  h1{font-size:14px;margin:0;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);font-weight:600}
+  select,button{background:var(--panel);color:var(--ink);border:1px solid var(--line);
+                border-radius:6px;padding:6px 10px;font:inherit}
+  button{cursor:pointer} button:hover{border-color:#3a4351}
+  .wrap{padding:20px;max-width:1400px;margin:0 auto}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:22px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+  .card .k{color:var(--dim);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+  .card .v{font-size:21px;margin-top:4px}
+  h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);
+     margin:26px 0 10px;font-weight:600}
+  .legend{display:flex;gap:16px;color:var(--dim);font-size:11px;margin-bottom:10px;flex-wrap:wrap}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}
+  .row{display:grid;grid-template-columns:210px 1fr 78px;gap:10px;align-items:center;
+       padding:3px 0;border-bottom:1px solid rgba(34,40,49,.5)}
+  .name{color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .name b{color:var(--ink);font-weight:500}
+  .track{position:relative;height:15px;background:#0e1116;border-radius:3px;overflow:hidden}
+  .bar{position:absolute;top:0;height:100%;border-radius:3px;min-width:2px}
+  .bar.plan{background:var(--plan)} .bar.work{background:var(--work)} .bar.judge{background:var(--judge)}
+  .bar.fail{background:var(--fail)}
+  .ms{color:var(--dim);text-align:right;font-size:11px}
+  .axis{display:flex;justify-content:space-between;color:var(--dim);font-size:11px;
+        border-top:1px solid var(--line);padding-top:5px;margin-top:8px}
+  pre{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px;
+      max-height:340px;overflow:auto;white-space:pre-wrap;word-break:break-word;margin:0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:900px){.grid2{grid-template-columns:1fr}.row{grid-template-columns:120px 1fr 60px}}
+  .empty{color:var(--dim);padding:40px 0;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <h1>droid-council</h1>
+  <select id="run"></select>
+  <button id="reload">Reload</button>
+  <span id="hint" style="color:var(--dim)"></span>
+</header>
+<div class="wrap">
+  <div class="stats" id="stats"></div>
+
+  <h2>Droid timeline <span id="span"></span></h2>
+  <div class="legend">
+    <span><i style="background:var(--plan)"></i>planner</span>
+    <span><i style="background:var(--work)"></i>worker</span>
+    <span><i style="background:var(--judge)"></i>judge</span>
+    <span><i style="background:var(--fail)"></i>failed</span>
+  </div>
+  <div id="gantt"></div>
+  <div class="axis"><span>0s</span><span id="mid"></span><span id="end"></span></div>
+
+  <div class="grid2" style="margin-top:26px">
+    <div>
+      <h2>Blackboard — sideways communication</h2>
+      <pre id="board">—</pre>
+    </div>
+    <div>
+      <h2>Final answer</h2>
+      <pre id="answer">—</pre>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let evs = [];
+
+const fmt = (n) => n >= 1000 ? (n/1000).toFixed(1).replace(/\.0$/,'') + 'k' : String(n);
+const dur = (ms) => ms < 1000 ? ms + 'ms' : (ms/1000).toFixed(1) + 's';
+
+async function loadRuns() {
+  const runs = await (await fetch('/api/runs')).json();
+  const sel = $('run');
+  sel.innerHTML = runs.map(r =>
+    `<option value="${r.id}">${r.id}${r.report ? ` — ${r.report.droids} droids, ${r.report.seconds}s` : ''}</option>`
+  ).join('') || '<option>no runs found</option>';
+  if (runs[0]) { sel.value = runs[0].id; await loadRun(); }
+}
+
+async function loadRun() {
+  const run = $('run').value;
+  if (!run || run === 'no runs found') return;
+  evs = await (await fetch('/api/events?run=' + encodeURIComponent(run))).json();
+  const report = await (await fetch('/api/runs')).json().then(rs => (rs.find(r => r.id === run) || {}).report);
+  render(report);
+  const b = await (await fetch('/api/board?run=' + encodeURIComponent(run))).json();
+  $('board').textContent = (b.text || '').slice(-6000) || '—';
+  $('answer').textContent = 'loading…';
+  fetch('/api/artifacts?run=' + encodeURIComponent(run)).then(r => r.json());
+}
+
+function render(report) {
+  const starts = evs.filter(e => e.kind === 'start')[0];
+  const end = evs.filter(e => e.kind === 'end').pop();
+  const spawns = evs.filter(e => e.kind === 'spawn');
+  const dones = new Map(evs.filter(e => e.kind === 'done').map(e => [e.id, e]));
+  const splits = evs.filter(e => e.kind === 'split');
+  const merges = evs.filter(e => e.kind === 'merge');
+
+  const total = Math.max(1000, end ? end.at : Math.max(...spawns.map(s => s.at), 1));
+
+  const cards = report ? [
+    ['droids', report.droids], ['wall clock', report.seconds + 's'],
+    ['leaves', report.leaves ?? '—'], ['nodes', report.nodes ?? '—'],
+    ['credits', fmt(Math.round(report.credits))],
+    ['tokens out', fmt(report.outputTokens)], ['failed', report.failed],
+    ['concurrency', report.concurrency],
+  ] : [['droids', spawns.length]];
+  $('stats').innerHTML = cards.map(([k,v]) =>
+    `<div class="card"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+
+  $('span').textContent = `— ${spawns.length} droids, ${splits.length} splits, ${merges.length} merges`;
+  $('mid').textContent = dur(Math.round(total/2));
+  $('end').textContent = dur(total);
+
+  // One row per droid: bar runs from spawn to done, colored by role.
+  const rows = spawns.map(s => {
+    const d = dones.get(s.id);
+    const start = s.at / total * 100;
+    const w = d ? Math.max((d.ms / total) * 100, 0.4) : 100 - start;
+    const role = !d ? 'work' : (d.ok === false ? 'fail' : s.role);
+    const label = (s.label || s.role).replace(/[<>&]/g, '');
+    return `<div class="row">
+      <div class="name" title="${label}"><b>${s.role[0].toUpperCase()}</b> ${label}</div>
+      <div class="track"><div class="bar ${role}" style="left:${start}%;width:${w}%"></div></div>
+      <div class="ms">${d ? dur(d.ms) : '…'}</div>
+    </div>`;
+  });
+  $('gantt').innerHTML = rows.join('') || '<div class="empty">no droids in this run</div>';
+}
+
+$('run').addEventListener('change', loadRun);
+$('reload').addEventListener('click', loadRun);
+
+// Poll while a run is still growing, so a live council animates.
+setInterval(async () => {
+  const before = evs.length;
+  if (before) { await loadRun(); }
+}, 4000);
+
+loadRuns();
+</script>
+</body>
+</html>

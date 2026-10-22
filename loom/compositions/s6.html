@@ -1,0 +1,226 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #s6-title {
+      position: absolute;
+      left: 100px;
+      top: 42px;
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      color: #fff;
+      text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
+      opacity: 0;
+    }
+    #s6-sub {
+      position: absolute;
+      left: 100px;
+      top: 84px;
+      font-family: var(--font-mono);
+      font-size: 20px;
+      color: #d8ffff;
+      opacity: 0;
+    }
+    .run {
+      position: absolute;
+      left: 100px;
+      width: 1420px;
+      height: 110px;
+      opacity: 0;
+      transform: translateX(-22px);
+    }
+    .run .nm {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 300px;
+      text-align: right;
+      font-size: 21px;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      line-height: 44px;
+      color: #fff;
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.45);
+    }
+    .run .nm span {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 400;
+      letter-spacing: 0;
+      line-height: 1;
+      color: rgba(255, 255, 255, 0.78);
+    }
+    .run .tr {
+      position: absolute;
+      left: 320px;
+      top: 0;
+      width: 900px;
+      height: 44px;
+      background: rgba(0, 0, 0, 0.22);
+    }
+    .run .fl {
+      position: absolute;
+      left: 320px;
+      top: 0;
+      height: 44px;
+      width: 0;
+      background: #fff;
+    }
+    .run .wv {
+      position: absolute;
+      top: 0;
+      height: 44px;
+      line-height: 44px;
+      font-family: var(--font-mono);
+      font-size: 23px;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.45);
+      opacity: 0;
+    }
+    .run .th {
+      position: absolute;
+      left: 1250px;
+      top: 0;
+      width: 200px;
+      text-align: right;
+      font-size: 40px;
+      font-weight: 900;
+      line-height: 44px;
+      color: #ffd75e;
+      text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
+      opacity: 0;
+    }
+    .run .th u {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      color: rgba(255, 255, 255, 0.72);
+      line-height: 1;
+    }
+    .mark {
+      position: absolute;
+      left: 320px;
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffd75e;
+      opacity: 0;
+    }
+    #s6-win1 {
+      position: absolute;
+      left: 920px;
+      top: 158px;
+      font-size: 22px;
+      font-weight: 900;
+      color: #ffd75e;
+      text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
+      opacity: 0;
+    }
+    #s6-win2 {
+      position: absolute;
+      left: 1176px;
+      top: 528px;
+      font-size: 22px;
+      font-weight: 900;
+      color: #ffd75e;
+      text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
+      opacity: 0;
+    }
+    #s6-credit {
+      position: absolute;
+      left: 100px;
+      top: 700px;
+      width: 1400px;
+      font-family: var(--font-mono);
+      font-size: 25px;
+      color: #fff;
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+      opacity: 0;
+    }
+    #s6-credit b {
+      color: #ffd75e;
+    }
+  </style>
+
+  <div id="root" data-composition-id="s6" data-width="1920" data-height="1080">
+    <div id="s6-title">END TO END, WHO WINS?</div>
+    <div id="s6-sub">wall clock for the whole run, against the execute phase's throughput</div>
+
+    <div class="run" id="s6-a" style="top: 150px">
+      <div class="nm">ONE DROID<span>--mode single</span></div>
+      <div class="tr"></div>
+      <div class="fl"></div>
+      <div class="wv"></div>
+      <div class="th">1.0×<u>THROUGHPUT</u></div>
+    </div>
+    <div class="run" id="s6-b" style="top: 310px">
+      <div class="nm">COUNCIL × 6<span>44 droids</span></div>
+      <div class="tr"></div>
+      <div class="fl"></div>
+      <div class="wv"></div>
+      <div class="th">4.6×<u>THROUGHPUT</u></div>
+    </div>
+    <div class="run" id="s6-c" style="top: 470px">
+      <div class="nm">COUNCIL × 16<span>46 droids</span></div>
+      <div class="tr"></div>
+      <div class="fl"></div>
+      <div class="wv"></div>
+      <div class="th">10.4×<u>THROUGHPUT</u></div>
+    </div>
+
+    <div id="s6-win1">◀ fastest to finish</div>
+    <div id="s6-win2">◀ fastest at the work</div>
+    <div id="s6-credit">Credits: <b>10,311</b> for one droid · <b>96,094</b> for ×6 · <b>82,550</b> for ×16</div>
+  </div>
+
+  <script>
+    // real wall clocks from analysis.py
+    const RUNS = [
+      { id: "s6-a", wall: 261, top: 150 },
+      { id: "s6-b", wall: 631, top: 310 },
+      { id: "s6-c", wall: 391, top: 470 },
+    ];
+    const PXR = 900 / 631;
+    const rows = RUNS.map((r) => ({
+      ...r,
+      el: document.getElementById(r.id),
+      fl: document.querySelector("#" + r.id + " .fl"),
+    }));
+
+    const tl = gsap.timeline({ paused: true });
+
+    // whip in from the left, the previous shot's push continuing
+    tl.fromTo("#root", { x: 90, filter: "blur(14px)", opacity: 0 }, { x: 0, filter: "blur(0px)", opacity: 1, duration: 0.26, ease: "power3.out" }, 0);
+
+    tl.to("#s6-title", { opacity: 1, duration: 0.28 }, 0.18);
+    tl.to("#s6-sub", { opacity: 1, duration: 0.28 }, 0.4);
+
+    rows.forEach((r, i) => {
+      const t = 0.7 + i * 0.5;
+      tl.to(r.el, { opacity: 1, x: 0, duration: 0.3, ease: "power3.out" }, t);
+      tl.set(r.fl, { width: r.wall * PXR }, t + 0.1);
+      tl.fromTo(r.fl, { scaleX: 0, transformOrigin: "left center" }, { scaleX: 1, duration: 0.55, ease: "power3.out" }, t + 0.1);
+      const v = r.el.querySelector(".wv");
+      tl.set(v, { left: 320 + r.wall * PXR + 16 }, t + 0.1);
+      tl.to(v, { opacity: 1, duration: 0.2 }, t + 0.5);
+      tl.to(r.el.querySelector(".th"), { opacity: 1, duration: 0.25 }, t + 0.7);
+    });
+
+    rows.forEach((r) => (r.el.querySelector(".wv").textContent = r.wall + " s"));
+
+    tl.fromTo("#s6-win1", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.28, ease: "power4.out" }, 3.35);
+    tl.fromTo("#s6-win2", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.28, ease: "power4.out" }, 5.9);
+    tl.fromTo("#s6-credit", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.32, ease: "power3.out" }, 7.8);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["s6"] = tl;
+  </script>
+</template>

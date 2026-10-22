@@ -1,0 +1,151 @@
+<!doctype html>
+<html
+  lang="en"
+  data-composition-variables='[
+  {"id":"color-ground","type":"color","label":"Blueprint ground","default":"#0A2740"},
+  {"id":"color-ink","type":"color","label":"Ink","default":"#E9F2F8"},
+  {"id":"color-dim","type":"color","label":"Rules","default":"#6E93AD"},
+  {"id":"color-accent","type":"color","label":"Red pencil","default":"#E8544A"},
+  {"id":"font-display","type":"string","label":"Display font","default":"Archivo Black"},
+  {"id":"font-mono","type":"string","label":"Measurement font","default":"IBM Plex Mono"}
+]'
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --color-ground: #0a2740;
+        --color-ink: #e9f2f8;
+        --color-dim: #6e93ad;
+        --color-accent: #e8544a;
+        --font-display: "Archivo Black";
+        --font-mono: "IBM Plex Mono";
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--color-ground);
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+      }
+      /* The drafting sheet: flat prussian ground, two ruled grids, fixed-seed paper grain. */
+      #sheet {
+        position: absolute;
+        inset: 0;
+        background-color: var(--color-ground);
+        background-image:
+          repeating-linear-gradient(
+            0deg,
+            color-mix(in srgb, var(--color-ink) 4.5%, transparent) 0 1px,
+            transparent 1px 32px
+          ),
+          repeating-linear-gradient(
+            90deg,
+            color-mix(in srgb, var(--color-ink) 4.5%, transparent) 0 1px,
+            transparent 1px 32px
+          ),
+          repeating-linear-gradient(
+            0deg,
+            color-mix(in srgb, var(--color-ink) 7.5%, transparent) 0 1px,
+            transparent 1px 160px
+          ),
+          repeating-linear-gradient(
+            90deg,
+            color-mix(in srgb, var(--color-ink) 7.5%, transparent) 0 1px,
+            transparent 1px 160px
+          );
+      }
+      #grain {
+        position: absolute;
+        inset: 0;
+        opacity: 0.04;
+        mix-blend-mode: screen;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="48.6"
+      data-width="1920"
+      data-height="1080"
+    >
+      <div id="sheet" aria-hidden="true"></div>
+      <div id="grain" aria-hidden="true"></div>
+
+      <div
+        id="replay"
+        class="scene"
+        data-composition-id="replay"
+        data-composition-src="compositions/replay.html"
+        data-start="0"
+        data-duration="35.6"
+        data-track-index="1"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <div
+        id="work"
+        class="scene"
+        data-composition-id="work"
+        data-composition-src="compositions/work.html"
+        data-start="35.6"
+        data-duration="8"
+        data-track-index="2"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <div
+        id="line"
+        class="scene"
+        data-composition-id="line"
+        data-composition-src="compositions/line.html"
+        data-start="43.6"
+        data-duration="5"
+        data-track-index="3"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- the bed: slow pads and one clock, written by mkbgm2.py -->
+      <audio
+        id="bgm"
+        src="assets/bgm/sheet.wav"
+        data-start="0"
+        data-duration="48.6"
+        data-volume="0.42"
+        data-fade-in="1.5"
+        data-fade-out="3"
+      ></audio>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = gsap.timeline({ paused: true });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,17 @@
+node_modules/
+runs/
+.env
+*.log
+council-report.html
+.factory-home/
+.playwright-mcp/
+__pycache__/
+*.pyc
+
+# HyperFrames build state and review artifacts
+.hyperframes/
+_review/
+_shots*/
+_z/
+_check.json
+_dump.py

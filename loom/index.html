@@ -1,0 +1,471 @@
+<!doctype html>
+<html
+  lang="en"
+  data-composition-variables='[
+  {"id":"color-desktop","type":"color","label":"Desktop","default":"#008080"},
+  {"id":"color-face","type":"color","label":"Window face","default":"#C0C0C0"},
+  {"id":"color-title","type":"color","label":"Title bar","default":"#000080"},
+  {"id":"color-term","type":"color","label":"Terminal ink","default":"#C8C8C8"},
+  {"id":"font-ui","type":"string","label":"UI font","default":"Lato"},
+  {"id":"font-mono","type":"string","label":"Mono font","default":"IBM Plex Mono"}
+]'
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --desktop: #008080;
+        --face: #c0c0c0;
+        --hilite: #ffffff;
+        --shadow: #808080;
+        --title: #000080;
+        --title2: #1084d0;
+        --term-bg: #000000;
+        --term-ink: #c8c8c8;
+        --balloon: #ffffcc;
+        --alert: #cc0000;
+        --font-ui: "Lato";
+        --font-mono: "IBM Plex Mono";
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--desktop);
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        font-family: var(--font-ui);
+        color: #000;
+      }
+      /* Windows 95 desktop: a flat teal field with the classic 50%-dither texture. */
+      #desktop {
+        position: absolute;
+        inset: 0;
+        background-color: var(--desktop);
+        background-image:
+          repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 3px),
+          repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 3px);
+      }
+      /* The 3D chrome every window, button and panel in this film is built from. */
+      .bevel {
+        background: var(--face);
+        border-top: 2px solid var(--hilite);
+        border-left: 2px solid var(--hilite);
+        border-right: 2px solid #000;
+        border-bottom: 2px solid #000;
+        box-shadow:
+          inset 1px 1px 0 #dfdfdf,
+          inset -1px -1px 0 var(--shadow);
+      }
+      .bevel-in {
+        background: #fff;
+        border-top: 2px solid var(--shadow);
+        border-left: 2px solid var(--shadow);
+        border-right: 2px solid var(--hilite);
+        border-bottom: 2px solid var(--hilite);
+        box-shadow: inset 1px 1px 0 #000;
+      }
+      .win {
+        position: absolute;
+      }
+      .tbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 30px;
+        padding: 0 4px 0 6px;
+        background: linear-gradient(90deg, var(--title), var(--title2));
+      }
+      .tbar span {
+        flex: 1;
+        font-size: 19px;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: 0.01em;
+        white-space: nowrap;
+      }
+      .btns {
+        display: flex;
+        gap: 3px;
+      }
+      .btns i {
+        display: block;
+        width: 24px;
+        height: 22px;
+        background: var(--face);
+        border-top: 2px solid var(--hilite);
+        border-left: 2px solid var(--hilite);
+        border-right: 2px solid #000;
+        border-bottom: 2px solid #000;
+        font-style: normal;
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 17px;
+        text-align: center;
+        color: #000;
+      }
+      .term {
+        background: var(--term-bg);
+        color: var(--term-ink);
+        font-family: var(--font-mono);
+        font-size: 21px;
+        line-height: 1.62;
+      }
+      /* `pre` belongs on the lines, never on the container: on the container it
+         preserves the newlines between the child divs and triples the leading. */
+      .term > div {
+        white-space: pre;
+      }
+      .term .p {
+        color: #7fd4ff;
+      }
+      .term .w {
+        color: #ffffff;
+      }
+      .term .d {
+        color: #8a8a8a;
+      }
+      .term .g {
+        color: #5ce68a;
+      }
+      .term .y {
+        color: #ffd75e;
+      }
+      /* Clippy: the presenter, sitting where Loom puts the camera bubble, except
+         it is a paperclip. It owns the bottom strip, so every scene keeps its
+         content above 890px. */
+      #clippy {
+        position: absolute;
+        left: 44px;
+        top: 860px;
+        width: 190px;
+        height: 209px;
+      }
+      #clippy svg {
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+      }
+      #clip-bob {
+        transform-origin: 50% 100%;
+      }
+      #balloon {
+        position: absolute;
+        left: 300px;
+        top: 888px;
+        width: 640px;
+        padding: 16px 22px 18px;
+        background: var(--balloon);
+        border: 2px solid #000;
+        box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.28);
+      }
+      #balloon .body {
+        position: relative;
+        min-height: 48px;
+        font-size: 34px;
+        font-weight: 700;
+        line-height: 1.28;
+        color: #201c00;
+      }
+      #balloon .body > div {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+      }
+      /* the balloon's tail, pointing left at the clip */
+      #balloon .tail {
+        position: absolute;
+        left: -48px;
+        top: 26px;
+        width: 0;
+        height: 0;
+        border-top: 18px solid transparent;
+        border-bottom: 18px solid transparent;
+        border-right: 48px solid var(--balloon);
+        filter: drop-shadow(-2px 1px 0 #000);
+      }
+      /* Loom-style recording chrome: a red dot and a running clock, no camera. */
+      #rec {
+        position: absolute;
+        right: 48px;
+        top: 40px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 20px 10px 16px;
+        border-radius: 999px;
+        background: rgba(16, 16, 20, 0.72);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+      }
+      #rec .dot {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        background: #ff4438;
+      }
+      #rec .t {
+        font-family: var(--font-mono);
+        font-size: 21px;
+        font-variant-numeric: tabular-nums;
+        color: #fff;
+        letter-spacing: 0.04em;
+      }
+      #rec .lbl {
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        color: rgba(255, 255, 255, 0.62);
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="60"
+      data-width="1920"
+      data-height="1080"
+    >
+      <div id="desktop" aria-hidden="true"></div>
+
+      <div
+        id="s1"
+        class="scene"
+        data-composition-id="s1"
+        data-composition-src="compositions/s1.html"
+        data-start="0"
+        data-duration="7.92"
+        data-track-index="1"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+      <div
+        id="s2"
+        class="scene"
+        data-composition-id="s2"
+        data-composition-src="compositions/s2.html"
+        data-start="7.92"
+        data-duration="5.1"
+        data-track-index="2"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+      <div
+        id="s3"
+        class="scene"
+        data-composition-id="s3"
+        data-composition-src="compositions/s3.html"
+        data-start="13.02"
+        data-duration="8.52"
+        data-track-index="3"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+      <div
+        id="s4"
+        class="scene"
+        data-composition-id="s4"
+        data-composition-src="compositions/s4.html"
+        data-start="21.54"
+        data-duration="9.86"
+        data-track-index="4"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+      <div
+        id="s5"
+        class="scene"
+        data-composition-id="s5"
+        data-composition-src="compositions/s5.html"
+        data-start="31.4"
+        data-duration="11.51"
+        data-track-index="5"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+      <div
+        id="s6"
+        class="scene"
+        data-composition-id="s6"
+        data-composition-src="compositions/s6.html"
+        data-start="42.91"
+        data-duration="10.22"
+        data-track-index="6"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+      <div
+        id="s7"
+        class="scene"
+        data-composition-id="s7"
+        data-composition-src="compositions/s7.html"
+        data-start="53.13"
+        data-duration="6.87"
+        data-track-index="7"
+        data-track-kind="graphics"
+        data-width="1920"
+        data-height="1080"
+      ></div>
+
+      <!-- the presenter, above every scene -->
+      <div id="balloon" aria-hidden="true">
+        <div class="body">
+          <div data-b="0">droid council?</div>
+          <div data-b="1">one task · six files</div>
+          <div data-b="2">6 modules, 6 test files</div>
+          <div data-b="3">run A: 1 droid · run B: 46</div>
+          <div data-b="4">13 leaves, one worker pool</div>
+          <div data-b="5">no droid spawns a droid</div>
+          <div data-b="6">166 s, nothing built</div>
+          <div data-b="7">13 workers, one frame</div>
+          <div data-b="8">1349 s of work in 130 s</div>
+          <div data-b="9">10.4× throughput</div>
+          <div data-b="10">261 s vs 391 s</div>
+          <div data-b="11">10,311 vs 82,550 credits</div>
+          <div data-b="12">size the council to the job</div>
+          <div data-b="13">that is the finding</div>
+        </div>
+        <div class="tail"></div>
+      </div>
+
+      <div id="clippy" aria-hidden="true">
+        <svg viewBox="0 0 210 231" fill="none">
+          <g id="clip-bob">
+          <!-- the wire -->
+          <path
+            id="clip-wire"
+            d="M 56 36 L 56 152 C 56 176 132 176 132 152 L 132 44 C 132 22 84 22 84 44 L 84 140 C 84 158 116 158 116 140 L 116 66"
+            stroke="#CFCFCF"
+            stroke-width="13"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M 56 36 L 56 152 C 56 176 132 176 132 152 L 132 44 C 132 22 84 22 84 44 L 84 140 C 84 158 116 158 116 140 L 116 66"
+            stroke="#9A9A9A"
+            stroke-width="13"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            opacity="0.28"
+            transform="translate(2,2)"
+          />
+          <g id="clip-face">
+            <ellipse cx="82" cy="80" rx="11" ry="14" fill="#FFFFFF" stroke="#3A3A3A" stroke-width="2" />
+            <ellipse cx="108" cy="80" rx="11" ry="14" fill="#FFFFFF" stroke="#3A3A3A" stroke-width="2" />
+            <circle id="clip-pupil-l" cx="82" cy="82" r="5" fill="#111111" />
+            <circle id="clip-pupil-r" cx="108" cy="82" r="5" fill="#111111" />
+            <path d="M 66 58 C 74 50 90 50 96 56" stroke="#2A2A2A" stroke-width="4.5" stroke-linecap="round" />
+            <path d="M 96 56 C 102 50 118 50 124 58" stroke="#2A2A2A" stroke-width="4.5" stroke-linecap="round" />
+            <path id="clip-mouth" d="M 86 106 C 92 114 100 114 106 106" stroke="#2A2A2A" stroke-width="4" stroke-linecap="round" />
+          </g>
+          </g>
+        </svg>
+      </div>
+
+      <div id="rec">
+        <div class="dot"></div>
+        <div class="lbl">REC</div>
+        <div class="t">00:00</div>
+      </div>
+
+      <!-- the bed, then Clippy's voice, one file per line -->
+      <audio id="bgm" src="assets/bgm/track.wav" data-start="0" data-duration="60" data-volume="0.34" data-fade-in="0.8" data-fade-out="2"></audio>
+      <audio id="v01" src="assets/voice/l01.wav" data-start="0.6" data-volume="1"></audio>
+      <audio id="v02" src="assets/voice/l02.wav" data-start="3.72" data-volume="1"></audio>
+      <audio id="v03" src="assets/voice/l03.wav" data-start="7.92" data-volume="1"></audio>
+      <audio id="v04" src="assets/voice/l04.wav" data-start="13.02" data-volume="1"></audio>
+      <audio id="v05" src="assets/voice/l05.wav" data-start="16.73" data-volume="1"></audio>
+      <audio id="v06" src="assets/voice/l06.wav" data-start="21.54" data-volume="1"></audio>
+      <audio id="v07" src="assets/voice/l07.wav" data-start="27.17" data-volume="1"></audio>
+      <audio id="v08" src="assets/voice/l08.wav" data-start="31.4" data-volume="1"></audio>
+      <audio id="v09" src="assets/voice/l09.wav" data-start="36.38" data-volume="1"></audio>
+      <audio id="v10" src="assets/voice/l10.wav" data-start="42.91" data-volume="1"></audio>
+      <audio id="v11" src="assets/voice/l11.wav" data-start="44.9" data-volume="1"></audio>
+      <audio id="v12" src="assets/voice/l12.wav" data-start="50.75" data-volume="1"></audio>
+      <audio id="v13" src="assets/voice/l13.wav" data-start="53.13" data-volume="1"></audio>
+      <audio id="v14" src="assets/voice/l14.wav" data-start="56.39" data-volume="1"></audio>
+
+      <audio id="sfx-pop" src="assets/sfx/pop.mp3" data-start="3.5" data-volume="0.6"></audio>
+      <audio id="sfx-err" src="assets/sfx/error.mp3" data-start="22.3" data-volume="0.45"></audio>
+      <audio id="sfx-ping" src="assets/sfx/ping.mp3" data-start="43.1" data-volume="0.4"></audio>
+      <audio id="sfx-chime" src="assets/sfx/chime.mp3" data-start="53.3" data-volume="0.4"></audio>
+      <audio id="sfx-riser" src="assets/sfx/riser.mp3" data-start="30.4" data-volume="0.32"></audio>
+      <audio id="sfx-whoosh" src="assets/sfx/whoosh-short.mp3" data-start="21.4" data-volume="0.5"></audio>
+      <audio id="sfx-click" src="assets/sfx/click.mp3" data-start="12.95" data-volume="0.5"></audio>
+      <audio id="sfx-impact" src="assets/sfx/impact-bass-1.mp3" data-start="31.2" data-volume="0.42"></audio>
+    </div>
+
+    <script>
+      // ---- the presenter: the clip bobs, blinks and swaps its tip ----
+      const B = [
+        [0.6, 3.72], [3.72, 7.92], [7.92, 13.02], [13.02, 16.73], [16.73, 21.54],
+        [21.54, 27.17], [27.17, 31.4], [31.4, 36.38], [36.38, 42.91], [42.91, 44.9],
+        [44.9, 50.75], [50.75, 53.13], [53.13, 56.39], [56.39, 60],
+      ];
+      const tips = [...document.querySelectorAll('#balloon .body > div')];
+
+      const tl = gsap.timeline({ paused: true });
+
+      // balloon and clip arrive a beat into the film and stay to the end
+      tl.fromTo("#balloon", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.34, ease: "power4.out" }, 3.42);
+      tl.fromTo("#clippy", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.4, ease: "power4.out" }, 3.38);
+
+      B.forEach(([a, b], i) => {
+        tl.to(tips[i], { opacity: 1, duration: 0.14 }, a);
+        tl.to(tips[i], { opacity: 0, duration: 0.14 }, b - 0.14);
+      });
+
+      // the bob is acting: slow, small, and never on the balloon
+      tl.to("#clip-bob", { y: -7, duration: 1.41, ease: "sine.inOut", repeat: 39, yoyo: true }, 3.4);
+      [5.1, 15.4, 28.2, 38.6, 47.4, 55.2].forEach((t) => {
+        tl.to("#clip-pupil-l, #clip-pupil-r", { scaleY: 0.12, transformOrigin: "50% 50%", duration: 0.07, yoyo: true, repeat: 1 }, t);
+      });
+
+      // the recording clock runs the length of the film
+      const clock = document.querySelector("#rec .t");
+      const master = { t: 0 };
+      tl.to(
+        master,
+        {
+          t: 1,
+          duration: 60,
+          ease: "none",
+          onUpdate: () => {
+            const s = Math.min(59.9, master.t * 60);
+            clock.textContent =
+              String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+          },
+        },
+        0,
+      );
+      tl.fromTo("#rec", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 0.1);
+      tl.to("#rec .dot", { opacity: 0.25, duration: 0.5, repeat: 118, yoyo: true, ease: "none" }, 0.5);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

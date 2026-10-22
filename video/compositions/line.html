@@ -1,0 +1,110 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      font-family: var(--font-mono);
+      color: var(--color-ink);
+    }
+    #l-rule {
+      position: absolute;
+      left: 64px;
+      top: 176px;
+      width: 1796px;
+      height: 3px;
+      background: var(--color-ink);
+      opacity: 0.75;
+      transform-origin: left center;
+    }
+    #l-tag {
+      position: absolute;
+      left: 64px;
+      top: 210px;
+      font-size: 19px;
+      color: var(--color-dim);
+    }
+    #l-big {
+      position: absolute;
+      left: 64px;
+      top: 300px;
+      font-family: var(--font-display);
+      font-size: 68px;
+      letter-spacing: 0.01em;
+      line-height: 1.15;
+    }
+    #l-big em {
+      font-style: normal;
+      color: var(--color-accent);
+    }
+    #l-body {
+      position: absolute;
+      left: 64px;
+      top: 480px;
+      width: 1420px;
+      font-size: 27px;
+      line-height: 1.75;
+    }
+    #l-body .dim {
+      color: var(--color-dim);
+    }
+    #l-sep {
+      position: absolute;
+      left: 64px;
+      top: 790px;
+      width: 1796px;
+      height: 1.5px;
+      background: var(--color-dim);
+      opacity: 0.5;
+      transform-origin: left center;
+    }
+    #l-cmd {
+      position: absolute;
+      left: 64px;
+      top: 836px;
+      font-size: 30px;
+      letter-spacing: 0.01em;
+    }
+    #l-cmd .p {
+      color: var(--color-dim);
+    }
+    #l-foot {
+      position: absolute;
+      left: 64px;
+      top: 900px;
+      font-size: 19px;
+      color: var(--color-dim);
+    }
+  </style>
+
+  <div id="root" data-composition-id="line" data-width="1920" data-height="1080">
+    <div id="l-rule"></div>
+    <div id="l-tag">the council, measured</div>
+    <div id="l-big">1349 seconds of work<br />in <em>130 seconds</em> of clock.</div>
+    <div id="l-body">
+      End to end, one droid still finished first: <span class="dim">261 s against 391 s, at 10,311
+      credits against 82,550.</span><br />
+      The council spent <span class="dim">166 s initialising sessions before it built anything.</span>
+      That is the whole difference.
+    </div>
+    <div id="l-sep"></div>
+    <div id="l-cmd"><span class="p">$</span> npx tsx council.ts --leaves 13 --concurrency 16</div>
+    <div id="l-foot">
+      glm-5.3-flash · six-module textstat package, one pytest file each · tests passing 57 / 51 / 60
+      · runs/ in the repo
+    </div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#l-rule", { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: "power3.out" }, 0);
+    tl.fromTo("#l-tag", { opacity: 0, y: -8 }, { opacity: 1, y: 0, duration: 0.3, ease: "power3.out" }, 0.12);
+    tl.fromTo("#l-big", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 0.2);
+    tl.fromTo("#l-body", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 0.75);
+    tl.fromTo("#l-sep", { scaleX: 0 }, { scaleX: 1, duration: 0.4, ease: "power3.out" }, 1.2);
+    tl.fromTo("#l-cmd", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 1.45);
+    tl.fromTo("#l-foot", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 1.85);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["line"] = tl;
+  </script>
+</template>
