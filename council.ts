@@ -23,7 +23,7 @@
  */
 import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync, spawn } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
@@ -149,7 +149,10 @@ const CFG = {
   covertOnly: has('covert-only'),
   auto: flag('auto', 'medium')!,
   reason: flag('reason', 'high')!,
-  cwd: flag('cwd', join('runs', stamp))!,
+  // Absolute, always. The droid CLI resolves a relative cwd against its own working
+  // directory, not ours, and answers -32603 "Working directory does not exist" for a
+  // path that plainly does exist. `runs/<stamp>` used to fail on every droid.
+  cwd: resolve(flag('cwd', join('runs', stamp))!),
   models: (flag('models') ?? (panel > 1 ? DIVERSITY : 'auto')).split(',').map((m) => m.trim()).filter(Boolean),
 };
 
