@@ -7,6 +7,8 @@ council-report.html
 .playwright-mcp/
 __pycache__/
 *.pyc
+loom/.thumbnails/
+video/.thumbnails/
 
 # HyperFrames build state and review artifacts
 .hyperframes/

@@ -25,7 +25,8 @@ import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
+import { randomBytes } from 'node:crypto';
 import {
   AutonomyLevel,
   OutputFormatType,
@@ -117,9 +118,11 @@ const USAGE = `usage: npx tsx council.ts "<task>" [options]
   --label NAME     name this run for the UI           (run)
   --auto LEVEL     off|low|medium|high                (medium)
   --reason LEVEL   off|low|medium|high|xhigh|max      (high)
+  --covert         run the timing side-channel relay before the council
+  --covert-only    run just the relay and exit, no droids
   --plan-only      expand and print the plan, spawn no workers`;
 
-if (!task) {
+if (!task && !has('covert-only')) {
   console.error(USAGE);
   process.exit(2);
 }
@@ -142,6 +145,8 @@ const CFG = {
   agents: num(flag('agents'), 200),
   panel,
   planOnly: has('plan-only'),
+  covert: has('covert') || has('covert-only'),
+  covertOnly: has('covert-only'),
   auto: flag('auto', 'medium')!,
   reason: flag('reason', 'high')!,
   cwd: flag('cwd', join('runs', stamp))!,
@@ -475,12 +480,95 @@ async function reduce(nodes: Node[]): Promise<string> {
 
 /* ── 11. run ──────────────────────────────────────────────────────────────── */
 
+/* ── 7. the covert channel ────────────────────────────────────────────────── */
+
+/**
+ * Two isolated processes, one secret, no shared writable state.
+ *
+ * The sender and the receiver are separate OS processes. Everything the receiver is told
+ * is a start time and a byte count — it never sees the payload, and it reads no file and
+ * no socket. It recovers the bytes by timing its own walk over a 4 MB buffer that would
+ * sit in the last-level cache if the sender's eight hammer processes were not busy
+ * evicting it. See channel/ for the physical layer, the wire format and the numbers.
+ *
+ * The orchestrator is the only party that knows both ends, so the orchestrator is the one
+ * that can say whether the message arrived intact. Neither worker can.
+ */
+async function covertRelay(token: Buffer): Promise<{ ok: boolean; got: string; tries: number; seconds: number }> {
+  const here = dirname(fileURLToPath(import.meta.url));
+  const channel = join(here, 'channel', 'channel.ts');
+  const copies = num(flag('covert-copies'), 2);
+  const lead = num(flag('covert-lead'), 8000);
+  const t0 = Date.now();
+
+  const launch = (mode: string, extra: string[]) =>
+    spawn(process.execPath, ['--import', 'tsx', channel, mode, ...extra], {
+      cwd: here,
+      stdio: ['ignore', 'pipe', 'inherit'],
+    });
+
+  const collect = (p: ReturnType<typeof spawn>): Promise<string> => {
+    let out = '';
+    p.stdout!.on('data', (d: Buffer) => (out += d));
+    return new Promise((r) => p.on('exit', () => r(out)));
+  };
+
+  const attempt = async (): Promise<{ ok: boolean; got: string }> => {
+    const startMs = Date.now() + lead;
+    // The receiver learns the start time and the byte count. Nothing else.
+    const rx = launch('recv', ['--start', String(startMs), '--bytes', String(token.length), '--frames', String(copies), '--json']);
+    // The sender is a different process, told the bytes and the same start time.
+    const tx = launch('transmit', ['--hex', token.toString('hex'), '--start', String(startMs), '--repeat', String(copies)]);
+    const settled = collect(tx);
+    const out = await collect(rx);
+    await settled;
+
+    let r: { ok?: boolean; hex?: string; separation?: number };
+    try {
+      r = JSON.parse(out.trim().split('\n').pop() ?? '{}');
+    } catch {
+      return { ok: false, got: '' };
+    }
+    return { ok: r.ok === true && r.hex === token.toString('hex'), got: r.hex ?? '' };
+  };
+
+  let result = { ok: false, got: '' };
+  let tries = 0;
+  while (!result.ok && tries < 3) {
+    tries++;
+    result = await attempt();
+  }
+  return { ...result, tries, seconds: Math.round((Date.now() - t0) / 1000) };
+}
+
+/** Run the relay, report it on stderr and in events.jsonl, and answer whether it landed. */
+async function covertPhase(): Promise<boolean> {
+  const token = randomBytes(4);
+  log(`covert | two isolated processes, ${token.length} B, no shared file, no socket`);
+  const r = await covertRelay(token);
+  emit({ kind: 'covert', at: elapsed(), sent: token.toString('hex'), got: r.got, ok: r.ok, tries: r.tries, seconds: r.seconds });
+  log(
+    r.ok
+      ? `covert | receiver recovered ${r.got} over the timing channel — ${r.tries} attempt(s), ${r.seconds}s`
+      : `covert | failed after ${r.tries} attempts (best ${r.got || 'nothing'} vs ${token.toString('hex')})`,
+  );
+  return r.ok;
+}
+
+/* ── 8. run ───────────────────────────────────────────────────────────────── */
+
 await mkdir(CFG.cwd, { recursive: true });
 await writeFile(join(CFG.cwd, 'task.md'), `# Task\n\n${task}\n`);
 await writeFile(join(CFG.cwd, 'board.md'), `# Blackboard — ${CFG.label}\n`);
 emit({ kind: 'start', task, cfg: CFG, at: 0 });
 assertCompatible(EXEC);
 log(`council start | mode=${CFG.mode} leaves≤${CFG.leaves} depth≤${CFG.depth} fanout≤${CFG.fanout} concurrency=${CFG.concurrency} agents≤${CFG.agents} panel=${CFG.panel} models=${CFG.models.join(',')}`);
+
+if (CFG.covertOnly) {
+  const ok = await covertPhase();
+  await evChain;
+  process.exit(ok ? 0 : 1);
+}
 
 const nodes = CFG.mode === 'single'
   ? [{ id: 0, parent: null, depth: 0, task, children: [] } as Node]
@@ -501,6 +589,7 @@ if (CFG.planOnly) {
   log(`estimated droids: ${leafCount * Math.max(1, CFG.panel) + nodes.filter((n) => n.children.length).length + (CFG.mode === 'single' ? 0 : nodes.length - leafCount)}`);
   log(`plan written → ${join(CFG.cwd, 'plan.json')}`);
 } else {
+  if (CFG.covert) await covertPhase();
   await executeAll(nodes);
   const answer = await reduce(nodes);
 

@@ -111,6 +111,60 @@ In the run above this worked for real: one droid hit an `UnboundLocalError` in `
 
 No message bus, no vector store, no shared memory service. A file and a return value cover what actually needs to move.
 
+## A third channel, through the hardware
+
+Both channels above move information *through the operating system*: a return value, a file. There is a third one that does not.
+
+`channel/` is a working covert channel between two isolated processes on one host. The receiver reads no file the sender wrote and opens no socket. What the two processes share is the silicon underneath them.
+
+```
+   sender                            receiver
+   8 processes stream    ──►         times a dependent-load walk
+   a 64 MB buffer                    over a 4 MB buffer
+   → evicts L3                       → 1 if the walk is slow, 0 if it is fast
+```
+
+**The physical layer.** The sender streams a buffer far larger than the 25.6 MB L3 from eight processes at once; the receiver times a walk over a 4 MB buffer that would normally live in L3. While the hammers run, that buffer is not there any more and the walk slows down. One slot becomes one bit.
+
+Four candidates were measured before this one held up:
+
+| Candidate | Result |
+|---|---|
+| Raw DRAM throughput contention | **1.02x** — no signal at all |
+| Per-slot *minimum* walk latency | **BER 0.50** — the receiver's own walking re-warms L3 faster than a 50 ms burst can evict it, and the minimum picks out the lucky samples |
+| A single hammer process | unreliable — BER 0.09 on one run, 0.38 on an identical later run |
+| **Streaming hammers + lower-half-mean** | **~1.45x separation** — the one that works |
+
+**The coding layer, because the baseline drifts.** Over a 28 s frame the receiver's own walk time climbs as the hammers heat the machine, so a single preamble at the front calibrates the first second and nothing after it. Each block instead carries its own pilots, and the receiver thresholds every block against its own two levels. The pilots alternate `1,0,1,0` rather than `1,1,0,0`, because the receiver's cache stays warm for a moment after the hammers stop and a run of 0s straight after a run of 1s reads high.
+
+**Measured.** 8 hammers, 100 ms slots, 5 slots per bit, 4 data bits per pilot block, i7-12700K:
+
+| | |
+|---|---|
+| Per-block level separation | **1.45x** mean, 1.15x worst |
+| Single frame of 4 bytes | **6 of 8 decoded clean** |
+| Payload rate, one copy | **1.11 bit/s** — 32 payload bits inside 28.8 s |
+| Payload rate, two copies | 0.56 bit/s, and the CRC picks whichever copy survived |
+
+A frame is `8 length bits + payload + 8 CRC bits`. One bad block costs the whole frame, so the frame can be sent as K independent copies and the CRC decides which to trust. Payloads are compared as hex, not as text, so the channel does not assume the bytes are valid UTF-8.
+
+```bash
+npx tsx channel/channel.ts bench --trials 8              # end-to-end frame rate on your machine
+npx tsx channel/channel.ts send --msg "A7F3" --repeat 2  # transmit; spawns its own receiver
+```
+
+And through the council:
+
+```bash
+npx tsx council.ts --covert-only
+#   0s  covert | two isolated processes, 4 B, no shared file, no socket
+# 132s  covert | receiver recovered ed799651 over the timing channel — 2 attempt(s), 132s
+```
+
+`--covert` runs the same relay as a phase before the council starts. The result lands in `events.jsonl` as a `kind: "covert"` event carrying the bytes sent and the bytes received, so the claim is checkable after the fact rather than taken on faith.
+
+**The honest caveats.** It is about 1 bit/s, so it moves a token, a digest or a handshake — not a conversation. And the two sides must already agree on a wall-clock start time out of band; that agreement is the one thing the channel itself cannot carry. The probes that rejected the other three candidates are kept in `channel/probe.mjs` and `channel/probe2.mjs`, so the negative results are reproducible rather than merely asserted.
+
 ## Roles
 
 | Role | Job |
@@ -146,8 +200,12 @@ Every run writes to `--cwd` (`runs/<timestamp>/` by default):
 --label NAME     name this run for the UI           (run)
 --auto LEVEL     off|low|medium|high                (medium)
 --reason LEVEL   off|low|medium|high|xhigh|max      (high)
+--covert         run the timing side-channel relay before the council
+--covert-only    run just the relay and exit, no droids
 --plan-only      expand and print the plan, spawn no workers
 ```
+
+**`--covert-only`** is the fastest way to see the side channel work end to end. It spawns two isolated processes, hands one a 4-byte secret, and reports what the other one recovered.
 
 **`--plan-only`** is the cheap way to size a task. It runs only the planners and tells you the node count, leaf count, and estimated droid spend before you commit.
 
@@ -175,6 +233,8 @@ npx tsx export.ts team team-fast  # only these runs
 ## Requirements
 
 Node 18+, and a **`FACTORY_API_KEY`**. The SDK requires the key explicitly; it does *not* reuse the droid CLI's stored login, so a working `droid exec` alone is not enough.
+
+Every command here is written as `npx tsx <file>`. If your npm install does not put `node_modules/.bin` on PATH, the same thing without the shim is `node node_modules/tsx/dist/cli.mjs <file>`.
 
 A matching `@factory/cli` is installed as a dev dependency and used automatically, because the SDK and CLI must agree on a JSON-RPC protocol version. A stale CLI rejects session init with `-32600`, and the only symptom is a 60s timeout on *every* droid — indistinguishable from slow work. `council.ts` checks the version at startup and refuses to run rather than burn an hour pretending to be busy.
 

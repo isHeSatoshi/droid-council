@@ -20,6 +20,7 @@
     "council": "tsx --env-file-if-exists=.env council.ts",
     "plan": "tsx --env-file-if-exists=.env council.ts --plan-only",
     "ui": "tsx --env-file-if-exists=.env serve.ts",
+    "channel": "tsx channel/channel.ts",
     "check": "tsc --noEmit"
   },
   "dependencies": {
