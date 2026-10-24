@@ -165,6 +165,25 @@ npx tsx council.ts --covert-only
 
 **The honest caveats.** It is about 1 bit/s, so it moves a token, a digest or a handshake — not a conversation. And the two sides must already agree on a wall-clock start time out of band; that agreement is the one thing the channel itself cannot carry. The probes that rejected the other three candidates are kept in `channel/probe.mjs` and `channel/probe2.mjs`, so the negative results are reproducible rather than merely asserted.
 
+**It also crosses a VM boundary.** The attacks this is modelled on used two VMs on one host rather than two processes, which is the stronger claim — a process boundary still shares a kernel, a page cache and a clock. `channel/vmtest.mjs` closes that gap: the sender runs on the Windows host, the receiver inside a Linux container started with `--network none`, so there is no file, no socket and no kernel in common. Only L3, plus a start time agreed beforehand.
+
+The two clocks do not agree, and 100 ms slots do not forgive a large offset, so the harness measures the skew first by ping-ponging a live container over stdin. The round trip brackets the error; the tightest of fourteen pings came back at 1 ms, putting the offset at **0.5 ms**.
+
+```
+$ node channel/vmtest.mjs 4 2
+offset   host − container = 0.5 ms  (±0.5 ms from the tightest of 14 pings, best round trip 1 ms)
+sender   this Windows host, 8 hammer processes
+receiver linux container, --network none, read-only bind mount, node:22-alpine
+sent     0b30557a
+received 0b30557a   CRC ok on copy 2/2
+separation 2.35x mean
+CROSSED: a Linux container recovered 4 bytes from a Windows process through cache timing alone.
+```
+
+**The boundary is free; the machine is not.** That run separated at 2.35x — better than the 1.45x the same code managed process-to-process earlier the same day, so the container costs essentially nothing. What moves the number is background load. With four unrelated containers running on the host, the same test collapsed to 1.15x and failed, and a process-to-process control **failed at exactly the same 1.15x**. Same code, same machine, lower noise floor.
+
+So read the reliability numbers as a property of how busy the box is, not of how well isolated the two sides are. A quiet machine decodes; a busy one does not, and no amount of frame repetition recovers a signal that has stopped separating.
+
 ## Roles
 
 | Role | Job |
