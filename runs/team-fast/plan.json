@@ -1,0 +1,168 @@
+[
+  {
+    "id": 0,
+    "parent": null,
+    "depth": 0,
+    "children": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "task": "Build a Python package named textstat in the working directory with exactly six independent modules, each with its own pytest test file: slugify.py (title to URL slug), wordcount.py (word, character and sentence counts), truncate.py (truncate at a word boundary appending an ellipsis), normalize_ws.py (collapse repeated whitespace), titlecase.py (smart title casing), strip_html.py (remove HTML tags"
+  },
+  {
+    "id": 1,
+    "parent": 0,
+    "depth": 1,
+    "children": [
+      7,
+      8
+    ],
+    "task": "Working directory: D:\\Project\\droid council\\runs\\team-fast. You are one of six parallel workers building the 'textstat' Python package; each worker owns exactly one module and its test file, and no worker may touch another's files.\n\nYour deliverables:\n1. Create D:\\Project\\droid council\\runs\\team-fast\\textstat\\slugify.py — a stdlib-only module (no third-party deps, no imports from sibling modules) "
+  },
+  {
+    "id": 2,
+    "parent": 0,
+    "depth": 1,
+    "children": [
+      9,
+      10,
+      11
+    ],
+    "task": "Working directory: D:\\Project\\droid council\\runs\\team-fast. You are one of six parallel workers building the 'textstat' Python package; each worker owns one module and its test file, and no worker may touch another's files.\n\nYour deliverables:\n1. Create D:\\Project\\droid council\\runs\\team-fast\\textstat\\__init__.py — a minimal package init containing only a module docstring (e.g. '\"\"\"textstat: small"
+  },
+  {
+    "id": 3,
+    "parent": 0,
+    "depth": 1,
+    "children": [
+      12,
+      13
+    ],
+    "task": "Working directory: D:\\Project\\droid council\\runs\\team-fast. You are one of six parallel workers building the 'textstat' Python package; each worker owns exactly one module and its test file, and no worker may touch another's files.\n\nYour deliverables:\n1. Create D:\\Project\\droid council\\runs\\team-fast\\textstat\\truncate.py — a stdlib-only module (no third-party deps, no imports from sibling modules)"
+  },
+  {
+    "id": 4,
+    "parent": 0,
+    "depth": 1,
+    "children": [
+      14,
+      15
+    ],
+    "task": "Working directory: D:\\Project\\droid council\\runs\\team-fast. You are one of six parallel workers building the 'textstat' Python package; each worker owns exactly one module and its test file, and no worker may touch another's files.\n\nYour deliverables:\n1. Create D:\\Project\\droid council\\runs\\team-fast\\textstat\\normalize_ws.py — a stdlib-only module (no third-party deps, no imports from sibling modu"
+  },
+  {
+    "id": 5,
+    "parent": 0,
+    "depth": 1,
+    "children": [
+      16,
+      17
+    ],
+    "task": "Working directory: D:\\Project\\droid council\\runs\\team-fast. You are one of six parallel workers building the 'textstat' Python package; each worker owns exactly one module and its test file, and no worker may touch another's files.\n\nYour deliverables:\n1. Create D:\\Project\\droid council\\runs\\team-fast\\textstat\\titlecase.py — a stdlib-only module (no third-party deps, no imports from sibling modules"
+  },
+  {
+    "id": 6,
+    "parent": 0,
+    "depth": 1,
+    "children": [
+      18,
+      19
+    ],
+    "task": "Working directory: D:\\Project\\droid council\\runs\\team-fast. You are one of six parallel workers building the 'textstat' Python package; each worker owns exactly one module and its test file, and no worker may touch another's files.\n\nYour deliverables:\n1. Create D:\\Project\\droid council\\runs\\team-fast\\textstat\\strip_html.py — a stdlib-only module (no third-party deps, no imports from sibling module"
+  },
+  {
+    "id": 7,
+    "parent": 1,
+    "depth": 2,
+    "children": [],
+    "task": "Create D:\\Project\\droid council\\runs\\team-fast\\textstat\\slugify.py — a stdlib-only module (no third-party dependencies, no imports from sibling modules) exposing `slugify(title: str) -> str`. Behavior: lowercase the text; replace runs of non-alphanumeric characters with a single hyphen; collapse repeated hyphens (covered by run-replacement); strip leading/trailing hyphens. Example: slugify('Hello,"
+  },
+  {
+    "id": 8,
+    "parent": 1,
+    "depth": 2,
+    "children": [],
+    "task": "Create D:\\Project\\droid council\\runs\\team-fast\\tests\\test_slugify.py — a pytest test file that imports via `from textstat.slugify import slugify`. Cover with separate test functions: a basic two-word title (e.g. 'Hello World' -> 'hello-world'); punctuation-heavy input (e.g. 'Hello, World! -- A Test' -> 'hello-world-a-test'); mixed casing ('MiXeD CaSe' -> 'mixed-case'); runs of repeated spaces/dash"
+  },
+  {
+    "id": 9,
+    "parent": 2,
+    "depth": 2,
+    "children": [],
+    "task": "Goal: create the package initializer for the 'textstat' Python package. Artifact: D:\\Project\\droid council\\runs\\team-fast\\textstat\\__init__.py (create the textstat directory if it does not exist). Content: the file must contain exactly one thing, a module docstring: \"\"\"textstat: small text utilities.\"\"\" — no imports, no __all__, no code, no re-exports of sibling modules. Six sibling modules (e.g. "
+  },
+  {
+    "id": 10,
+    "parent": 2,
+    "depth": 2,
+    "children": [],
+    "task": "Goal: implement the counting module of the 'textstat' Python package. Artifact: D:\\Project\\droid council\\runs\\team-fast\\textstat\\wordcount.py (create the textstat directory if it does not exist). Requirements: stdlib-only module, no third-party dependencies, no imports from sibling modules (the package __init__.py is written by another worker and must not be imported). Implement exactly three func"
+  },
+  {
+    "id": 11,
+    "parent": 2,
+    "depth": 2,
+    "children": [],
+    "task": "IMPORTANT: run this subtask only after the sibling workers have finished creating D:\\Project\\droid council\\runs\\team-fast\\textstat\\__init__.py (docstring only) and D:\\Project\\droid council\\runs\\team-fast\\textstat\\wordcount.py (module with count_words, count_characters, count_sentences — signatures: count_words(text: str) -> int counts whitespace-separated tokens, 0 for empty; count_characters(text"
+  },
+  {
+    "id": 12,
+    "parent": 3,
+    "depth": 2,
+    "children": [],
+    "task": "Create D:\\Project\\droid council\\runs\\team-fast\\textstat\\truncate.py, a stdlib-only Python module (no third-party dependencies, no imports from sibling modules) exposing `truncate(text: str, limit: int, ellipsis: str = '...') -> str`. Rules: if the text's length including any ellipsis fits within `limit`, return it unchanged. Otherwise cut at a word boundary so that the kept words plus the ellipsis"
+  },
+  {
+    "id": 13,
+    "parent": 3,
+    "depth": 2,
+    "children": [],
+    "task": "Create D:\\Project\\droid council\\runs\\team-fast\\tests\\test_truncate.py, a pytest file that imports via `from textstat.truncate import truncate` (pytest auto-adds the cwd to sys.path, so this works even though textstat/__init__.py does not exist yet). Cover these six cases: short text returned unchanged, text exactly at the limit returned unchanged, truncation at a word boundary with ellipsis append"
+  },
+  {
+    "id": 14,
+    "parent": 4,
+    "depth": 2,
+    "children": [],
+    "task": "Create the file D:\\Project\\droid council\\runs\\team-fast\\textstat\\normalize_ws.py only. It must be a stdlib-only module with no third-party dependencies and no imports from sibling modules. It exposes the function `normalize_ws(text: str) -> str` that collapses every run of whitespace characters (spaces, tabs, newlines, and any character where str.isspace() is True) into a single space, and strips "
+  },
+  {
+    "id": 15,
+    "parent": 4,
+    "depth": 2,
+    "children": [],
+    "task": "Create the file D:\\Project\\droid council\\runs\\team-fast\\tests\\test_normalize_ws.py only. It is a pytest test file for the function normalize_ws in the module textstat.normalize_ws (a sibling worker is creating that module at D:\\Project\\droid council\\runs\\team-fast\\textstat\\normalize_ws.py; it exposes `normalize_ws(text: str) -> str` that collapses every run of whitespace, including spaces, tabs, n"
+  },
+  {
+    "id": 16,
+    "parent": 5,
+    "depth": 2,
+    "children": [],
+    "task": "Create D:\\Project\\droid council\\runs\\team-fast\\textstat\\titlecase.py — a stdlib-only module (no third-party deps, no imports from sibling modules) exposing `titlecase(text: str) -> str` implementing smart title casing: capitalize the first letter of each word and lowercase the rest, EXCEPT small words (short articles, conjunctions, and prepositions such as 'a', 'an', 'the', 'and', 'or', 'but', 'of"
+  },
+  {
+    "id": 17,
+    "parent": 5,
+    "depth": 2,
+    "children": [],
+    "task": "Create D:\\Project\\droid council\\runs\\team-fast\\tests\\test_titlecase.py — a pytest file importing via `from textstat.titlecase import titlecase`. Cover at minimum: plain sentence casing, first word capitalized, last word capitalized even if small, mid-sentence small words left lowercase, all-caps input normalized, a small word appearing both first and mid-sentence, and single-word input. Reference "
+  },
+  {
+    "id": 18,
+    "parent": 6,
+    "depth": 2,
+    "children": [],
+    "task": "Create exactly one file: D:\\Project\\droid council\\runs\\team-fast\\textstat\\strip_html.py. It must be stdlib-only (no third-party dependencies, no imports from sibling modules) and expose `strip_html(html: str) -> str` that: removes all HTML tags (anything between '<' and '>', including tags with attributes and self-closing tags like <br/>); replaces common block-level tags (e.g. <p>, <div>, <br>) w"
+  },
+  {
+    "id": 19,
+    "parent": 6,
+    "depth": 2,
+    "children": [],
+    "task": "Create exactly one file: D:\\Project\\droid council\\runs\\team-fast\\tests\\test_strip_html.py. It must import via `from textstat.strip_html import strip_html` (pytest auto-adds the working directory to sys.path, so this works even though textstat/__init__.py does not exist yet). The module under test is textstat/strip_html.py, which is being written in parallel by another worker to this spec: `strip_h"
+  }
+]

@@ -58,6 +58,8 @@ Six-module Python package with a pytest suite per module, same task, same model 
 | Credits | **10,311** | 96,094 | 82,550 |
 | Tests passing | 57 | 51 | **60** |
 
+The run artifacts behind the table are in the repo: [`runs/cmp-single/report.json`](runs/cmp-single/report.json), [`runs/team/report.json`](runs/team/report.json) and [`runs/team-fast/report.json`](runs/team-fast/report.json) are the three runs, and [`runs/team-fast/events.jsonl`](runs/team-fast/events.jsonl) is the per-worker event log the films are rendered from. The rest of `runs/` is scratch space and stays out of git.
+
 The chart is the whole story. Purple bars are planners, green are workers, amber are judges. At concurrency 6 the workers form a **staircase** — only 6 run at a time, so the pool is the bottleneck. At concurrency 16 all 13 workers start within 200ms of each other: a solid parallel block, and the wall clock drops 38% with no other change.
 
 **Read this honestly: for a task this size, one droid wins.** The council produced slightly more tests at high concurrency, but it was slower and roughly 8x more expensive.

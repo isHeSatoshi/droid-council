@@ -1,0 +1,25 @@
+{
+  "task": "Build a Python package named textstat in the working directory with exactly six independent modules, each with its own pytest test file: slugify.py (title to URL slug), wordcount.py (word, character and sentence counts), truncate.py (truncate at a word boundary appending an ellipsis), normalize_ws.py (collapse repeated whitespace), titlecase.py (smart title casing), strip_html.py (remove HTML tags). Add an __init__.py. No cross-imports between modules. Then run py -m pytest -q and report the exact pass and fail counts.",
+  "mode": "team",
+  "label": "team-fast",
+  "leaves": 13,
+  "depth": 3,
+  "fanout": 6,
+  "concurrency": 16,
+  "agents": 200,
+  "panel": 1,
+  "planOnly": false,
+  "auto": "medium",
+  "reason": "high",
+  "cwd": "D:\\Project\\droid council\\runs\\team-fast",
+  "models": [
+    "glm-5.3-flash"
+  ],
+  "nodes": 20,
+  "droids": 46,
+  "failed": 0,
+  "inputTokens": 324567,
+  "outputTokens": 75222,
+  "credits": 82550,
+  "seconds": 391
+}
