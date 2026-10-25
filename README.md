@@ -33,7 +33,7 @@ Both are in this repo, both are rendered from HTML with [HyperFrames](https://hy
 | [`loom/renders/droid-council-loom.mp4`](loom/renders/droid-council-loom.mp4) | **60 s.** A Loom-style screen recording of the run. Clippy presents — a wire paperclip, not a webcam — with a speech card that changes fourteen times, a `REC` pill and a running clock. The 1997 desktop is the conceit: a terminal recording of a terminal job. |
 | [`video/renders/droid-council-sheet.mp4`](video/renders/droid-council-sheet.mp4) | **48.6 s.** The drafting-sheet cut. No mascot, no jokes: the three runs drawn as measured tracks on one axis, then the same thirteen tasks compared as work done rather than wall clock. |
 
-The thirteen worker bars in the Loom cut are the thirteen real per-worker durations read out of `runs/team-fast/events.jsonl`, and their one-frame stagger is the real spread — all thirteen workers started within about 100 ms of each other.
+The thirteen worker bars in the Loom cut are the thirteen real per-worker durations read out of `runs/team-fast/events.jsonl`, and their one-frame stagger is the real spread — all thirteen workers started within about 30 ms of each other.
 
 To rebuild either from source:
 
